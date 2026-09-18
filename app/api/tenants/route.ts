@@ -32,7 +32,7 @@ function slugify(s: string) {
 
 /**
  * Crea una empresa. Modelo v3.9.0 (100% de pago): cada plan incluye N
- * sedes/empresas (Pro 3, Business 10) — ver lib/plans.ts `limits.locations`.
+ * sedes/empresas (1 · 5 · 10 · 30 según plan) — ver lib/plans.ts `limits.locations`.
  * Requiere suscripción activa: sin ella responde 402.
  */
 export async function POST(req: Request) {
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         error: 'Necesitas una suscripción activa para crear una empresa.',
         code: 'no_subscription',
         checkoutUrl: '/bienvenido',
-        plan: 'pro',
+        plan: 'negocio',
       },
       { status: 402 },
     );
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
       {
         error: `Tu plan incluye ${locationCap} ${locationCap === 1 ? 'empresa' : 'empresas'}. Amplía a un plan superior para añadir más negocios.`,
         checkoutUrl: '/bienvenido',
-        plan: 'business',
+        plan: 'tiendas',
       },
       { status: 403 },
     );

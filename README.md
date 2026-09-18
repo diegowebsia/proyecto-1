@@ -1,4 +1,4 @@
-# ⭐ ReviewFlow AI v3.15.0
+# ⭐ ReviewFlow AI v3.16.0
 
 **Plataforma SaaS multi-tenant para centralizar opiniones reales (Google · Trustpilot · Tiendas),
 responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
@@ -10,8 +10,10 @@ responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
 - ✅ **Ayuda contextual en cada módulo**: icono «?» accesible (clic/hover/teclado) en `ReviewCard`,
   `BillingPanel`, `FunnelPanel`, `UsagePanel`, `StoreConnect` y `TenantCard`, con explicación en
   lenguaje no técnico y enlace al Centro de ayuda abierto en la sección concreta.
-- ✅ **Demo del panel sin registro**: `/demo/pro` y `/demo/business` abren directamente el panel
-  exacto de cada plan con datos simulados — banner ámbar «Panel demo», toggle Pro ⇄ Business y
+- ✅ **Demo del panel sin registro**: `/demo/negocio`, `/demo/negocio_plus`, `/demo/tiendas` y
+  `/demo/tiendas_plus` abren el panel exacto de cada plan con datos simulados (cada demo es un
+  negocio distinto: bar, clínica, tienda de decoración y multi-marca) — banner ámbar «Panel
+  demo», toggle entre los 4 planes y
   acciones simuladas en el navegador (no se llama a APIs ni se guarda nada; rutas `noindex`).
 - ✅ **La IA escribe COMO tu negocio**: sector configurable (bar, clínica, taller…) que cambia el
   vocabulario del borrador, y contacto propio (email/teléfono/web) — la IA solo ofrece los canales
@@ -25,7 +27,10 @@ responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
   fallback local y **contabilidad de tokens y coste** por empresa (`ai_interactions` + `usage_counters`).
   Cada plan tiene su **presupuesto de tokens** (250.000 / 1.200.000 al mes): la IA nunca
   puede generar una factura sorpresa.
-- ✅ **2 planes 100 % de pago y nada más**: **Pro (29 €)** y **Business (79 €)**, ambos con **7 días de prueba gratis** con tarjeta. Sin suscripción activa (o con la prueba caducada), panel y APIs responden **402**.
+- ✅ **4 planes 100 % de pago, en 2 familias**: **Negocio (19 €)** y **Negocio Plus (39 €)** para
+  locales y servicios; **Tiendas (49 €)** y **Tiendas Plus (89 €)** para ecommerce/dropshipping
+  (añaden tienda conectada + WhatsApp al entregar). Todos con **7 días de prueba gratis** con
+  tarjeta. Sin suscripción activa (o con la prueba caducada), panel y APIs responden **402**.
 - ✅ **Automatización total**: cron horario + cola QStash (entregas, IAs, WhatsApps y syncs en segundo plano), plantillas WhatsApp HSM, opt-in RGPD y Flujo Neutral `/valorar/[slug]` (plataformas para todos + ticket privado opcional).
   Cada plan define 4 cuotas mensuales claras (peticiones, opiniones, IA, sincronizaciones) y
   **topes de base de datos** por empresa (opiniones guardadas, auditoría, conexiones, MB).
@@ -101,7 +106,7 @@ POST /api/ai
 
 | Guía | Para qué | Coste |
 |---|---|---|
-| **[GUIA_GRATIS.md](./GUIA_GRATIS.md)** 🆓 | Explicación comercial de los 2 planes + montar el proyecto gratis (Vercel + Supabase + Stripe **test** + Brevo) | **0 €** |
+| **[GUIA_GRATIS.md](./GUIA_GRATIS.md)** 🆓 | Explicación comercial de los 4 planes + montar el proyecto gratis (Vercel + Supabase + Stripe **test** + Brevo) | **0 €** |
 | **[GUIA_DESPLIEGUE.md](./GUIA_DESPLIEGUE.md)** 🚀 | Desplegar desde cero (dominio, DNS, SSL, Docker) | Según host |
 | **[GUIA_ADMIN.md](./GUIA_ADMIN.md)** 🛡️ | Manual del dueño: planes, cuotas, **topes de BD por plan**, purga, cobros, **conexiones asistidas desde /admin** y **demo `/demo`** | — |
 | **[docs/GUIA_PASOS_MANUALES.md](./docs/GUIA_PASOS_MANUALES.md)** 🧑‍💻 | **Lista exacta de credenciales**, formato del `.env`, productos de Stripe, Supabase, OpenAI, Meta WhatsApp, Google y troubleshooting | — |
@@ -140,13 +145,14 @@ npm run verify
 | 2 | Supabase → *Project Settings → API* → copia `URL`, `anon`, `service_role` |
 | 3 | Supabase → *Project Settings → Database → Connection pooling* → copia la cadena del **puerto 6543** → `DATABASE_URL` |
 | 4 | **Vercel** → *Add New → Project → Import* el repo → *Environment Variables*: las de `.env.example` |
-| 5 | **Stripe** → *Product catalog*: Pro 29 € y Business 79 € (+ recargas opcionales) → `STRIPE_PRICE_PRO/BUSINESS` |
+| 5 | **Stripe** → *Product catalog*: 4 productos (19 / 39 / 49 / 89 €) (+ recargas opcionales) → `STRIPE_PRICE_NEGOCIO[_PLUS]` y `STRIPE_PRICE_TIENDAS[_PLUS]` |
 | 6 | **Stripe** → *Developers → Webhooks → Add endpoint* → `https://tu-dominio.com/api/stripe/webhook` (eventos de la lista) → `STRIPE_WEBHOOK_SECRET` |
 | 7 | *Redeploy* y ejecuta `npm run verify -- --url https://tu-dominio.com` |
 
 > Variables clave: `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
 > `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
-> `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_BUSINESS`,
+> `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_NEGOCIO`, `STRIPE_PRICE_NEGOCIO_PLUS`,
+> `STRIPE_PRICE_TIENDAS`, `STRIPE_PRICE_TIENDAS_PLUS`,
 > `SMTP_*`, `OPENAI_API_KEY` (opcional), `SUPERADMIN_EMAILS`.
 > La publishable key de Stripe ya no se usa: todo el cobro
 > ocurre en el servidor y no hay campos de tarjeta en el navegador.
@@ -159,8 +165,12 @@ npm run verify
 
 Sin cuentas, sin códigos y sin pedir nada al prospecto:
 
-- `https://tu-dominio.com/demo/pro` → panel exacto del **Plan Pro** (datos simulados)
-- `https://tu-dominio.com/demo/business` → panel exacto del **Plan Business** (datos simulados)
+- `https://tu-dominio.com/demo/negocio` → panel exacto del **plan Negocio** (un bar de barrio)
+- `https://tu-dominio.com/demo/negocio_plus` → **Negocio Plus** (clínica con varias sedes)
+- `https://tu-dominio.com/demo/tiendas` → **Tiendas** (ecommerce/dropshipping con WhatsApp al entregar)
+- `https://tu-dominio.com/demo/tiendas_plus` → **Tiendas Plus** (multi-marca de gran volumen)
+
+`/demo/pro` y `/demo/business` siguen valiendo: redirigen al plan equivalente.
 
 Ambas rutas renderizan el mismo `DashboardClient` que ve un cliente real, con toggle de plan y
 banner ámbar de honestidad. Las acciones (conectar, publicar, comprar recargas…) se simulan en
@@ -170,25 +180,30 @@ se comparten solo cuando tú quieras enseñar el producto.
 
 ## 💶 Planes y cuotas (fuente de verdad: `lib/plans.ts`)
 
-| | 🔵 **Pro** | 🟣 **Business** |
-|---|---|---|
-| Precio | **29 €/mes** (7 días de prueba gratis con tarjeta) | **79 €/mes** (7 días de prueba gratis con tarjeta) |
-| Peticiones de opiniones / mes | **500** | **2.000** |
-| Opiniones importadas / mes | **1.000** | **5.000** |
-| Respuestas con IA / mes | **300** | **1.500** |
-| Presupuesto de IA / mes | 250.000 tokens | 1.200.000 tokens |
-| Sincronizaciones automáticas / mes | **120** | **720** |
-| Sedes incluidas | 3 | 10 |
-| Opiniones guardadas (tope BD) | 5.000 | 25.000 |
-| Auditoría · conexiones · retención | 10.000 · 6 · 180 d | 50.000 · 20 · 365 d |
-| Almacenamiento asignado | 2 GB | 10 GB |
-| Email · Google Business/Places · IA · filtro privado | ✅ | ✅ |
-| WhatsApp (peticiones y alertas) · Trustpilot · publicar en Google | ✅ | ✅ |
-| Tienda (Shopify/Woo/TPV) + WhatsApp al entregar | — | ✅ |
-| Soporte | Email | Prioritario |
+| | 🔵 **Negocio** | 🔵 **Negocio Plus** | 🟣 **Tiendas** | 🟣 **Tiendas Plus** |
+|---|---|---|---|---|
+| Para | bares, clínicas, servicios | idem, con varias sedes | tienda online / dropshipping | ecommerce multi-marca |
+| Precio | **19 €/mes** | **39 €/mes** | **49 €/mes** | **89 €/mes** |
+| Peticiones de opiniones / mes | **400** | **1.200** | **2.000** | **6.000** |
+| Opiniones importadas / mes | **800** | **2.500** | **5.000** | **15.000** |
+| Respuestas con IA / mes | **200** | **700** | **1.500** | **4.000** |
+| Presupuesto de IA / mes | 150.000 tokens | 600.000 tokens | 1.200.000 tokens | 3.000.000 tokens |
+| Sincronizaciones / mes (cadencia) | 60 (cada 6 h) | 360 (cada 3 h) | 720 (cada hora) | 2.160 (cada 30 min) |
+| Sedes incluidas | 1 | 5 | 10 | 30 |
+| Opiniones guardadas (tope BD) | 3.000 | 10.000 | 25.000 | 100.000 |
+| Auditoría · conexiones · retención | 8.000 · 4 · 120 d | 20.000 · 8 · 240 d | 50.000 · 20 · 365 d | 150.000 · 40 · 730 d |
+| Almacenamiento asignado | 1 GB | 4 GB | 10 GB | 25 GB |
+| Email · Google Business/Places · IA · filtro privado · WhatsApp peticiones | ✅ | ✅ | ✅ | ✅ |
+| Tienda (Shopify/Woo/TPV) + WhatsApp al entregar | — | — | ✅ | ✅ |
+| API pública de ingesta | — | — | ✅ | ✅ |
+| Soporte | Comunidad | Email | Email | Prioritario |
 
-> Sin plan gratuito: los 2 planes exigen suscripción activa. Sin ella (o con la prueba
-> caducada), el panel redirige a `/bienvenido` y las APIs responden **402**.
+Prueba gratis de 7 días con tarjeta en **los 4 planes**.
+
+> Sin plan gratuito: los 4 planes exigen suscripción activa. Sin ella (o con la prueba
+> caducada), el panel redirige a `/bienvenido` y las APIs responden **402**. La familia Tiendas
+> es la única que puede conectar tienda y disparar el WhatsApp al entregar (`403 plan_locked`
+> si lo intentas desde Negocio).
 
 **Métrica =** 1 petición enviada · 1 opinión importada · 1 respuesta de IA · 1 sincronización
 automática. Son **cuatro cuotas independientes**: agotar una no bloquea las otras.
@@ -211,8 +226,8 @@ Sin Price ID configurado, el Checkout se crea con `price_data` inline usando los
 ## 🔄 Flujo end-to-end (cero mocks)
 
 ```
-Registro → /bienvenido (2 planes de pago)
-  · Pro/Business → Stripe Checkout con prueba de 7 días (tarjeta obligatoria)
+Registro → /bienvenido (4 planes de pago, 2 familias)
+  · cualquier plan → Stripe Checkout con prueba de 7 días (tarjeta obligatoria)
   → webhook crea/activa tenant + membresía owner en Supabase
   → /dashboard: 1 clic en Google · «Conectar cuenta» en Trustpilot/tienda/WhatsApp → opiniones reales
   → triaje privado ≤3★ (análisis IA + mensaje conciliador + nota interna)
@@ -227,14 +242,14 @@ Registro → /bienvenido (2 planes de pago)
 
 | Módulo | Responsabilidad |
 |---|---|
-| `lib/plans.ts` | Catálogo comercial (client-safe): **2 planes de pago** (Pro/Business, 7 días de prueba), features, cuotas mensuales (incl. **presupuesto de tokens de IA**), **topes de BD**, `ROW_KB`, `AI_MODEL_PRICING`, `PURGE_STRATEGY`, recargas, `resolvePlan`, `hasAccess`. |
+| `lib/plans.ts` | Catálogo comercial (client-safe): **4 planes de pago en 2 familias** (Negocio 19 € · Negocio Plus 39 € · Tiendas 49 € · Tiendas Plus 89 €), `track` local/commerce, features, cuotas mensuales (incl. **presupuesto de tokens de IA**), **topes de BD**, `ROW_KB`, `AI_MODEL_PRICING`, `PURGE_STRATEGY`, recargas, `resolvePlan` (alias legacy), `nextPlanFor`, `hasAccess`. |
 | `lib/openai.ts` | **Cliente centralizado de IA**: `gpt-4o-mini` por defecto, timeout, reintentos con backoff exponencial + jitter, rate limit por empresa, semáforo de concurrencia, `chatComplete`/`chatOnce` y estimación de coste por tokens. |
 | `lib/usage.ts` | Motor de cuota y **guardia de la base de datos**: `checkQuota`, `consume`, `enforce()` (402/403/429), `enforceTableCap()`/`enforceStorage()` (507), purga de `reviews`/`quota_events`/`system_logs`, `publicQuota`, `upgradeHints`. |
 | `lib/ingest.ts` | Importación con corte por cuota: calcula el hueco real (cuota mensual + plazas de tabla) e importa solo hasta ahí (`quotaCut`/`skipped`). |
 | `lib/ai.ts` | IA de negocio (respuesta pública, mensaje privado, triaje ≤3★): usa `lib/openai.ts`, cae a plantilla/heurística local si el proveedor falla y registra tokens y coste por empresa (`recordAiUsage`). |
 | `lib/db.ts` | **Pool de PostgreSQL directo** (`pg`) contra el Connection Pooler de Supabase: consultas agregadas, mantenimiento, `checkDbHealth()` y cierre limpio en contenedores. |
 | `lib/whatsapp.ts` · `lib/google.ts` · `lib/store.ts` | Ejecutores reales; **cada llamada pasa por `enforce()` antes de consumir créditos externos**. |
-| `lib/stripe.ts` | Checkout con prueba de 7 días, Price ID de Pro/Business y recargas (`addonLineItem`, `priceIdFor`, `planFromPriceId`), portal de facturación. |
+| `lib/stripe.ts` | Checkout con prueba de 7 días, Price ID de los 4 planes y recargas (`addonLineItem`, `priceIdFor`, `planFromPriceId`), portal de facturación. |
 | `app/api/stripe/webhook` | Suscripciones (alta/cambio/impago/cancelación) y recargas idempotentes → `tenants.extra_*` + ledger `addons`. |
 | `supabase/migration_3_7_0.sql` | 3 planes, columnas `extra_requests/extra_syncs/extra_stored`, vista recalculada y funciones `purge_reviews`, `purge_quota_events`, `purge_system_logs`, `purge_tenant`, `purge_all_tenants`. |
 | `supabase/migration_3_8_0.sql` | Contabilidad de IA (`usage_counters.ai_tokens_*`, `tenants.ai_*`, tabla `ai_interactions`, RPC `consume_ai_tokens`, vista `v_ai_usage`, purga de IA), índices de rendimiento y RLS. |
@@ -298,8 +313,8 @@ Registro → /bienvenido (2 planes de pago)
 | Área | Estado | Detalle |
 |---|---|---|
 | 🖥️ Web comercial multipágina | ✅ | Landing + `/sobre-nosotros` + `/contacto` + 4 legales, estética dark premium |
-| 💳 2 planes de pago + Stripe | ✅ | Pro/Business con prueba de 7 días y tarjeta obligatoria, portal de facturación, 402 estricto |
-| 📊 Precios interactivos | ✅ | Comparativa de los 2 planes + tabla de límites + recargas con precio real |
+| 💳 4 planes de pago + Stripe | ✅ | 2 familias (Negocio · Tiendas), prueba de 7 días con tarjeta obligatoria, portal de facturación, 402 estricto |
+| 📊 Precios interactivos | ✅ | Comparativa 2×2 de los 4 planes + tabla de límites + recargas con precio real |
 | 🧮 Motor de cuotas | ✅ | 4 contadores por ciclo, RPC `consume_quota`, auditoría en `quota_events` |
 | 🧠 IA medida por tokens | ✅ | `lib/openai.ts` (gpt-4o-mini + reintentos + rate limit), `ai_interactions`, presupuesto por plan y fallbacks locales |
 | 🔌 Pool de PostgreSQL | ✅ | `lib/db.ts` contra el Connection Pooler, diagnóstico `?db=1` y mantenimiento |

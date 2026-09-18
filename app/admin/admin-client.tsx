@@ -21,7 +21,7 @@ import {
   Trash2,
   XCircle,
 } from 'lucide-react';
-import { PLANS, TRIAL_DAYS, formatEur, planOf, type PlanId } from '@/lib/plans';
+import { PLAN_CATALOG, TRIAL_DAYS, formatEur, planOf } from '@/lib/plans';
 import { Aurora, CountUp, EASE } from '@/components/Motion';
 import { useHeaderGlass } from '@/components/useHeaderGlass';
 import { Spinner, TableSkeleton } from '@/components/Skeleton';
@@ -492,12 +492,12 @@ export function AdminClient({ email, demo, tenants, stats, logs, integrations, p
                     acceso al panel el día 8 (<code className="font-mono text-2xs">?reason=trial-ended</code>).
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2 text-2xs">
-                    {(['pro', 'business'] as PlanId[]).map((id) => (
-                      <span key={id} className="badge">
-                        <strong className="font-bold text-white">{PLANS[id].tier}</strong> ·{' '}
-                        {formatEur(PLANS[id].priceCents)}/mes ·{' '}
-                        {PLANS[id].limits.requestsPerMonth.toLocaleString('es-ES')} peticiones ·{' '}
-                        {PLANS[id].limits.reviewsStored.toLocaleString('es-ES')} opiniones guardadas
+                    {PLAN_CATALOG.map((p) => (
+                      <span key={p.id} className="badge">
+                        <strong className="font-bold text-white">{p.tier}</strong> ·{' '}
+                        {formatEur(p.priceCents)}/mes ·{' '}
+                        {p.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones ·{' '}
+                        {p.limits.reviewsStored.toLocaleString('es-ES')} opiniones guardadas
                       </span>
                     ))}
                   </div>
@@ -534,8 +534,11 @@ export function AdminClient({ email, demo, tenants, stats, logs, integrations, p
                           )
                         }
                       >
-                        <option value="pro">{PLANS.pro.name} (29 €/mes)</option>
-                        <option value="business">{PLANS.business.name} (79 €/mes)</option>
+                        {PLAN_CATALOG.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} ({p.price}/mes)
+                          </option>
+                        ))}
                       </select>
                       {busyRow(`plan-${t.id}`) && <Spinner />}
                     </div>

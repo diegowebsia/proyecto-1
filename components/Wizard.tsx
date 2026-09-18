@@ -67,6 +67,12 @@ export function Wizard() {
   const [bizPhone, setBizPhone] = useState('');
   const [platforms, setPlatforms] = useState<string[]>(['google']);
   const [tone, setTone] = useState<(typeof TONES)[number]['id']>('profesional');
+  // v3.16.0 — «checkup»: con estos datos el sistema se autoconfigura solo.
+  const [mapsUrl, setMapsUrl] = useState('');
+  const [taUrl, setTaUrl] = useState('');
+  const [tpUrl, setTpUrl] = useState('');
+  const [storeProvider, setStoreProvider] = useState<'shopify' | 'woocommerce' | 'store'>('shopify');
+  const [shopUrl, setShopUrl] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -128,10 +134,53 @@ export function Wizard() {
       } catch {
         /* sin almacenamiento: continuar igual */
       }
+
+      // v3.16.0 — checkup → autoconfiguración. El cliente NO toca ninguna clave
+      // técnica: normalizamos enlaces y pedimos a /admin el montaje asistido.
+      const tenantId = data.tenantId as string;
+      const notes: string[] = [];
+      const links: Record<string, string> = {};
+      if (mapsUrl.trim()) links.place_id = mapsUrl.trim();
+      if (taUrl.trim()) links.tripadvisor_url = taUrl.trim();
+      if (tpUrl.trim()) links.trustpilot_url = tpUrl.trim();
+      if (tenantId && Object.keys(links).length > 0) {
+        try {
+          const r = await fetch('/api/tenants/settings', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tenantId, ...links, funnel_enabled: true }),
+          });
+          if (!r.ok) notes.push('Algún enlace no lo reconocimos; puedes corregirlo en «Embudo».');
+        } catch {
+          notes.push('No pudimos guardar los enlaces; reintenta desde «Embudo».');
+        }
+      }
+      if (tenantId && platforms.includes('tienda')) {
+        try {
+          const r = await fetch('/api/integrations/store/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tenantId,
+              provider: storeProvider,
+              mode: 'assisted',
+              ...(shopUrl.trim() ? { shop: shopUrl.trim() } : {}),
+            }),
+          });
+          if (r.ok) notes.push('Tu tienda entra en cola de montaje: avisaremos al quedar conectada (webhook + WhatsApp al entregar).');
+          else if (r.status === 403) notes.push('La conexión de tienda requiere un plan Tiendas: actívala en «Facturación».');
+        } catch {
+          notes.push('No pudimos enviar la tienda; hazlo desde «Empresa y conexiones».');
+        }
+      }
+
       toast({
         kind: 'success',
         title: '¡Empresa creada!',
-        body: `${name.trim()} ya está lista. Recargando el panel…`,
+        body: notes.length
+          ? `${name.trim()} ya está lista. ${notes.join(' ')}`
+          : `${name.trim()} ya está lista. Recargando el panel…`,
+        duration: notes.length ? 9000 : undefined,
       });
       setTimeout(() => window.location.reload(), 700);
     } catch (e: any) {
@@ -328,6 +377,88 @@ export function Wizard() {
                     );
                   })}
                 </div>
+
+                {/* v3.16.0 — checkup: con esto el sistema se autoconfigura (sin claves técnicas) */}
+                <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-ink-300">
+                    ¿Dónde miran tus clientes cuando te valoran?
+                  </p>
+                  <p className="mt-1 text-2xs leading-relaxed text-ink-500">
+                    Pega los enlaces tal cual (de «Compartir» en Google Maps, o de tu perfil de
+                    TripAdvisor/Trustpilot). Opcional: puedes añadirlos luego. Nosotros extraemos el
+                    identificador y sincronizamos cada día.
+                  </p>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+                    <input
+                      className="input"
+                      placeholder="Enlace de tu ficha en Google Maps"
+                      aria-label="Enlace de tu ficha de Google Maps"
+                      value={mapsUrl}
+                      onChange={(e) => setMapsUrl(e.target.value)}
+                      maxLength={400}
+                    />
+                    <input
+                      className="input"
+                      placeholder="TripAdvisor (opcional)"
+                      aria-label="Enlace de tu perfil de TripAdvisor"
+                      value={taUrl}
+                      onChange={(e) => setTaUrl(e.target.value)}
+                      maxLength={300}
+                    />
+                    <input
+                      className="input"
+                      placeholder="Trustpilot (opcional)"
+                      aria-label="Enlace de tu perfil de Trustpilot"
+                      value={tpUrl}
+                      onChange={(e) => setTpUrl(e.target.value)}
+                      maxLength={300}
+                    />
+                  </div>
+                </div>
+
+                {platforms.includes('tienda') && (
+                  <div className="mt-3 rounded-2xl border border-brand-400/25 bg-brand-500/[0.06] p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-ink-200">
+                      Tu tienda online — el WhatsApp al entregar se monta solo
+                    </p>
+                    <p className="mt-1 text-2xs leading-relaxed text-ink-400">
+                      Cuéntanos la plataforma y la dirección; el webhook de «pedido entregado» lo
+                      configuramos nosotros desde dentro. Nada de claves ni copiar y pegar secretos.
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      {(
+                        [
+                          ['shopify', 'Shopify'],
+                          ['woocommerce', 'WooCommerce'],
+                          ['store', 'Otra / TPV'],
+                        ] as const
+                      ).map(([id, label]) => (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => setStoreProvider(id)}
+                          aria-pressed={storeProvider === id}
+                          className={cn(
+                            'rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200',
+                            storeProvider === id
+                              ? 'border-brand-400/70 bg-[linear-gradient(120deg,rgba(37,99,235,0.35),rgba(139,92,246,0.3))] text-white'
+                              : 'border-white/10 bg-white/[0.03] text-ink-300 hover:border-white/20 hover:text-white',
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                      <input
+                        className="input flex-1 sm:w-56 sm:flex-none"
+                        placeholder={storeProvider === 'shopify' ? 'mitienda.myshopify.com' : 'https://mitienda.es'}
+                        aria-label="Dirección de tu tienda"
+                        value={shopUrl}
+                        onChange={(e) => setShopUrl(e.target.value)}
+                        maxLength={200}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

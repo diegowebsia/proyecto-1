@@ -29,3 +29,15 @@ test('schema 3.13 incorpora atribución de campañas', () => {
   assert.ok(sql.includes('feedback_tenant_campaign_created_idx'));
   assert.ok(sql.includes('feedback_campaign_format'));
 });
+
+
+test('schema 3.16 alinea el check de plan con el catálogo de 4 planes', () => {
+  const sql = readFileSync('supabase/schema.sql', 'utf8');
+  const migration = readFileSync('supabase/migration_3_16_0.sql', 'utf8');
+  for (const id of ["'negocio'", "'negocio_plus'", "'tiendas'", "'tiendas_plus'"]) {
+    assert.ok(sql.includes(id), `schema.sql no acepta el plan ${id}`);
+    assert.ok(migration.includes(id), `migration_3_16_0.sql no menciona ${id}`);
+  }
+  assert.equal(/check \(plan in \([^)]*'pro'/.test(sql), false);
+  assert.ok(sql.includes("set default 'negocio'"));
+});

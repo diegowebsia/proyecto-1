@@ -21,7 +21,7 @@ import { QuotaSkeleton } from '@/components/Skeleton';
 import { useToast } from '@/components/Toast';
 import { EASE } from '@/components/Motion';
 import { describeApiError, type TenantInfo, type UsageResponse } from '@/components/dashboard/types';
-import { PLANS, TRIAL_DAYS, formatEur, planOf, resolvePlan } from '@/lib/plans';
+import { PLAN_CATALOG, TRIAL_DAYS, formatEur, planOf, resolvePlan } from '@/lib/plans';
 import { AiBudget, StorageCaps } from '@/components/Quota';
 import type { StorageView } from '@/components/dashboard/types';
 
@@ -302,12 +302,12 @@ export function BillingPanel({
       <div className="card">
         <h3 className="text-base font-bold tracking-tightish text-white">¿Se te queda corto el plan?</h3>
         <p className="mt-1 text-sm text-ink-300">
-          Pasarte a Business suma tienda conectada, WhatsApp al entregar y{' '}
-          {PLANS.business.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones de opiniones al mes.
+          Cada plan sube cuotas de peticiones, opiniones, IA y sincronizaciones; las familias
+          Tiendas añaden además la tienda conectada y el WhatsApp al entregar.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {(['pro', 'business'] as const).map((id) => {
-            const p = PLANS[id];
+          {PLAN_CATALOG.map((p) => {
+            const id = p.id;
             const current = resolvePlan(tenant.plan) === id;
             return (
               <div

@@ -22,10 +22,10 @@ create table if not exists public.tenants (
   slug text unique not null,
   owner_id uuid references auth.users(id) on delete set null,
   owner_email text not null,
-  -- Planes v3.7.0: free (Gratuito) · pro · business. Los nombres antiguos
-  -- (trial / resenas / completo) siguen aceptándose para no romper filas.
-  plan text not null default 'free'
-    check (plan in ('free', 'pro', 'business', 'trial', 'resenas', 'completo')),
+  -- Planes v3.16.0: 2 familias x 2 niveles -> negocio | negocio_plus | tiendas | tiendas_plus.
+  -- El bloque de abajo normaliza cualquier id antiguo (pro/business/free/...) al catálogo nuevo.
+  plan text not null default 'negocio'
+    check (plan in ('negocio', 'negocio_plus', 'tiendas', 'tiendas_plus')),
   subscription_status text not null default 'none'
     check (subscription_status in ('trialing', 'active', 'past_due', 'canceled', 'inactive', 'paused', 'none')),
   stripe_customer_id text,
@@ -79,24 +79,27 @@ alter table public.tenants drop constraint if exists tenants_subscription_status
 alter table public.tenants add constraint tenants_subscription_status_check
   check (subscription_status in ('trialing','active','past_due','canceled','inactive','paused','none'));
 
--- El check de `plan` solo acepta planes de pago (ver migration_3_9_0.sql
--- para migrar instalaciones con filas legacy).
+-- El check de `plan` solo acepta los 4 planes de pago del catálogo v3.16.0
+-- (ver migration_3_16_0.sql para instalaciones con filas legacy).
 do $$
 begin
-  -- Normaliza filas antiguas antes de endurecer el constraint.
-  update public.tenants set plan = 'pro'
-   where plan in ('free', 'trial', 'gratis', 'gratuito', 'starter', 'standard', 'estandar', 'resenas', 'solo-resenas');
-  update public.tenants set plan = 'business'
-   where plan in ('completo', 'completo-ecommerce', 'ecommerce', 'enterprise');
-  update public.tenants set plan = 'pro' where plan not in ('pro', 'business');
+  -- Normaliza filas antiguas antes de endurecer el constraint:
+  --   pro / gratis / trial      -> negocio        (familia local, nivel 1)
+  --   business / completo / ecommerce -> tiendas  (familia comercio, nivel 1)
+  update public.tenants set plan = 'negocio'
+   where plan in ('free', 'pro', 'trial', 'gratis', 'gratuito', 'starter', 'standard', 'estandar', 'resenas', 'solo-resenas');
+  update public.tenants set plan = 'tiendas'
+   where plan in ('business', 'completo', 'completo-ecommerce', 'ecommerce', 'enterprise');
+  update public.tenants set plan = 'negocio'
+   where plan not in ('negocio', 'negocio_plus', 'tiendas', 'tiendas_plus');
 exception when others then
   raise warning 'Normalización de planes omitida: %', sqlerrm;
 end $$;
 alter table public.tenants drop constraint if exists tenants_plan_check;
 alter table public.tenants
   add constraint tenants_plan_check
-  check (plan in ('pro', 'business'));
-alter table public.tenants alter column plan set default 'pro';
+  check (plan in ('negocio', 'negocio_plus', 'tiendas', 'tiendas_plus'));
+alter table public.tenants alter column plan set default 'negocio';
 
 -- Migración de extras legacy → nuevo modelo (solo si aún están a 0).
 do $$

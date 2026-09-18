@@ -22,7 +22,7 @@ import { describeApiError, type TenantInfo } from '@/components/dashboard/types'
 import { planHasFeature } from '@/lib/plans';
 
 /**
- * Conexión con la tienda (plan Business) — v3.14.0: 1 clic asistido.
+ * Conexión con la tienda (familias Tiendas) — v3.14.0: 1 clic asistido.
  *
  * El cliente solo pulsa «Conectar cuenta»; la parte técnica (webhooks,
  * secretos HMAC, permisos de API) se configura desde el panel privado /admin
@@ -63,8 +63,8 @@ export function StoreConnect({
           <TriangleAlert size={15} className="mt-0.5 shrink-0" />
           <span>
             La conexión con tu tienda (Shopify, WooCommerce o TPV) y el WhatsApp al entregar están
-            incluidos en el plan <strong className="text-white">Business</strong>.{' '}
-            <Link href="/bienvenido?plan=business" className="font-semibold underline underline-offset-2">
+            incluidos en los planes <strong className="text-white">Tiendas</strong>.{' '}
+            <Link href="/bienvenido?plan=tiendas" className="font-semibold underline underline-offset-2">
               Cambiar de plan
             </Link>
             .

@@ -31,14 +31,17 @@ TripAdvisor no tiene API pública: se lee a través de un intermediario.
 ## 2. Sincronización automática (Cron)
 
 El cron decide **qué** sincronizar y encola un trabajo por (empresa, proveedor);
-el worker los ejecuta con reintentos. Cadencia: **Business cada hora, Pro cada 6 h**.
+el worker los ejecuta con reintentos. Cadencia por plan (v3.16.0): **Tiendas Plus cada 30 min,
+Tiendas cada hora, Negocio Plus cada 3 h y Negocio cada 6 h**.
 
 **Opción A · Vercel Cron (recomendado si despliegas en Vercel)**
 
 1. Crea `CRON_SECRET` en Vercel → Settings → Environment Variables (genera con
    `openssl rand -hex 32`). Vercel lo envía solo como `Authorization: Bearer …`.
-2. El `vercel.json` del repo ya programa `/api/cron/sync-reviews` cada hora (minuto 7).
-   No toca nada más.
+2. El `vercel.json` del repo ya programa `/api/cron/sync-reviews` **2 veces por hora**
+   (minutos 7 y 37): con eso Tiendas Plus obtiene su cadencia real de 30 min; los demás
+   planes la ignoran porque el propio endpoint filtra por cadencia (negocio 6 h,
+   negocio_plus 3 h, tiendas 1 h). No toca nada más.
 3. Prueba manual: `curl -H "Authorization: Bearer TU_CRON_SECRET" https://tudominio.com/api/cron/sync-reviews`
    → `{ ok, tenants, enqueued, skipped }`.
 

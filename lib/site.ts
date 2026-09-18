@@ -15,6 +15,8 @@
  *   NEXT_PUBLIC_LEGAL_EMAIL, NEXT_PUBLIC_SUPPORT_EMAIL, NEXT_PUBLIC_DOMAIN
  */
 
+import { PLAN_CATALOG, type PlanId } from '@/lib/plans';
+
 const env = (key: string, fallback: string): string => {
   const value = process.env[key];
   return value && value.trim().length > 0 ? value.trim() : fallback;
@@ -56,9 +58,10 @@ export const SITE = {
   email: legalEmail,
   supportEmail,
   domain,
-  // ---- Planes de pago (deben coincidir con Stripe; sin plan gratuito) ----
-  plans: {
-    pro: { name: 'Pro', price: '29 €', period: '/mes' },
-    business: { name: 'Business', price: '79 €', period: '/mes' },
-  },
+  // ---- Planes de pago: DERIVADOS del catálogo (única fuente de verdad) ----
 };
+
+/** Precio de lista por plan para textos legales/metadata (viene de lib/plans.ts). */
+export const sitePlans = Object.fromEntries(
+  PLAN_CATALOG.map((p) => [p.id, { name: p.name, price: `${p.price} €`, period: '/mes' }]),
+) as Record<PlanId, { name: string; price: string; period: string }>;

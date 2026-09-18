@@ -1145,8 +1145,8 @@ export function toSnapshot(check: QuotaCheck): UsageSnapshot {
  * Permite previsualizar los medidores y el selector de ampliaciones del panel
  * con datos coherentes con `lib/plans.ts`. Nunca autoriza consumo real.
  */
-export function demoQuotaCheck(planId: PlanId = 'pro'): QuotaCheck {
-  const plan = PLANS[planId] ?? PLANS.pro;
+export function demoQuotaCheck(planId: PlanId = 'negocio'): QuotaCheck {
+  const plan = PLANS[planId] ?? PLANS.negocio;
   const limits = plan.limits;
   const extras = { requests: 1_000, reviews: 0, ai: 0, syncs: 0, stored: 2_000 };
   const counters = {

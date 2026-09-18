@@ -27,8 +27,8 @@ export default async function BienvenidoPage({
   const user = await getSessionUser();
   if (isSupabaseConfigured && !user) redirect('/login?redirect=/bienvenido');
 
-  // Modelo 100% de pago: pro | business (los alias antiguos resuelven a pago).
-  const preselected = searchParams.plan ? resolvePlan(searchParams.plan) : 'pro';
+  // Modelo 100% de pago: 4 planes (negocio | negocio_plus | tiendas | tiendas_plus); los alias antiguos resuelven a pago.
+  const preselected = resolvePlan(searchParams.plan);
   const checkout = searchParams.checkout; // success | canceled | undefined
 
   let alreadyActive = false;

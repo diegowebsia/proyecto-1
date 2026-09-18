@@ -48,7 +48,7 @@ const REASONS: Record<string, { title: string; body: string; tone: 'danger' | 'w
 
 /**
  * Onboarding post-registro con el modelo 100% de pago (2 planes):
- *  · Pro/Business → Checkout de Stripe con 7 días de prueba y tarjeta.
+ *  · Los 4 planes → Checkout de Stripe con 7 días de prueba y tarjeta.
  * La empresa se crea sola vía webhook y el panel queda listo.
  * Sin suscripción activa no hay acceso (las APIs responden 402).
  */
@@ -67,7 +67,7 @@ export function WelcomeClient({
   alreadyActive: boolean;
   demo: boolean;
 }) {
-  const [plan, setPlan] = useState<PlanId>(PLANS[preselected] ? preselected : 'pro');
+  const [plan, setPlan] = useState<PlanId>(PLANS[preselected] ? preselected : 'negocio');
   const [busy, setBusy] = useState(false);
   const info = reason ? REASONS[reason] : null;
 
@@ -111,7 +111,7 @@ export function WelcomeClient({
       >
         <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm text-ink-200">
           <Sparkles size={14} className="text-amber-300" />
-          Pro y Business con {TRIAL_DAYS} días de prueba gratis
+          Los 4 planes, con {TRIAL_DAYS} días de prueba gratis
         </span>
         <h1 className="mx-auto mt-5 max-w-2xl text-balance text-3xl font-extrabold tracking-tighter text-white sm:text-4xl">
           Elige tu plan{email ? `, ${email.split('@')[0]}` : ''}
@@ -159,10 +159,10 @@ export function WelcomeClient({
         </p>
       )}
 
-      <div className="mx-auto mt-9 grid max-w-3xl gap-4 lg:grid-cols-2">
+      <div className="mx-auto mt-9 grid max-w-5xl gap-4 sm:grid-cols-2">
         {PLAN_CATALOG.map((p) => {
           const active = plan === p.id;
-          const featured = p.id === 'pro';
+          const featured = p.id === 'negocio';
           return (
             <motion.button
               key={p.id}
@@ -180,6 +180,9 @@ export function WelcomeClient({
                 </span>
               )}
               <span className="badge-brand">{p.tier}</span>
+              <span className="mt-2 block text-2xs font-bold uppercase tracking-[0.14em] text-ink-500">
+                {p.track === 'commerce' ? 'Comercio online · pedidos + WhatsApp al entregar' : 'Negocio local · reseñas + IA'}
+              </span>
               <p className="mt-3 text-base font-bold tracking-tightish text-white">{p.name}</p>
               <p className="mt-2 text-4xl font-extrabold tracking-tighter text-white">
                 {formatEur(p.priceCents)}

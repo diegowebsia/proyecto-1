@@ -352,8 +352,9 @@ export function DashboardClient({
                 Elige tu plan y empieza
               </h1>
               <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-300">
-                Tu cuenta ya está creada. Elige Pro o Business con {TRIAL_DAYS} días de prueba gratis:
-                tu empresa se activa al instante tras el pago.
+                Tu cuenta ya está creada. Elige uno de los 4 planes (dos familias: Negocio para
+                locales y servicios, Tiendas para ecommerce y dropshipping) con {TRIAL_DAYS} días
+                de prueba gratis: tu empresa se activa al instante tras el pago.
               </p>
               <Link href="/bienvenido" className="btn-primary btn-lg mt-6">
                 <CreditCard size={17} /> Elegir plan y empezar
@@ -412,7 +413,7 @@ export function DashboardClient({
                   reviewedAny={reviews.some((x) => x.replied) || publishedIds.size > 0}
                   preview={demo}
                   onAction={(a) => {
-                    if (a === 'connections') setTab('empresa');
+                    if (a === 'connections' || a === 'store') setTab('empresa');
                     else if (a === 'funnel') setTab('embudo');
                     else document.getElementById('bandeja-stats')?.scrollIntoView({ behavior: 'smooth' });
                   }}

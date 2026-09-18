@@ -420,7 +420,9 @@ body::after {
 
   /* ---------- Barra de progreso de cuota ---------- */
   .meter {
-    @apply relative h-2 w-full overflow-hidden rounded-full;
+    /* block: los medidores usan también <span class="meter">; sin display:block
+       la altura/ancho no se aplican y la barra interna desborda (v3.16.0 fix) */
+    @apply relative block h-2 w-full overflow-hidden rounded-full;
     background-color: rgba(255, 255, 255, 0.07);
     box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.7);
   }

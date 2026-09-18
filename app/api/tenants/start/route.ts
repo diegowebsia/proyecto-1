@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
  *
  * POST /api/tenants/start
  *  · Ya no crea empresas gratuitas: no existe plan gratuito.
- *  · Todos los planes (Pro/Business) pasan por Stripe con prueba de 7 días:
+ *  · Los 4 planes pasan por Stripe con prueba de 7 días:
  *    `/api/stripe/checkout?plan=pro|business` → el webhook crea/activa el tenant.
  *  · Se mantiene el endpoint para no romper clientes antiguos, pero responde
  *    402 (Payment Required) con la URL de checkout.

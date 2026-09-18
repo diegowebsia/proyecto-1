@@ -1,11 +1,14 @@
 /** Datos de demostración coherentes para modo sin-BD (panel admin + dashboard). */
 
+/** Sin dependencias de servidor: este módulo también lo consumen las páginas demo. */
+import type { PlanId } from '@/lib/plans';
+
 export type DemoTenant = {
   id: string;
   name: string;
   slug: string;
   owner_email: string;
-  plan: 'pro' | 'business';
+  plan: PlanId;
   subscription_status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'inactive' | 'none';
   stripe_customer_id: string | null;
   reviews_count: number;
@@ -21,12 +24,12 @@ export const demoTenants: DemoTenant[] = [
     name: 'Clínica Dental Sonrisa',
     slug: 'clinica-sonrisa',
     owner_email: 'hola@clinica-sonrisa.es',
-    plan: 'business',
+    plan: 'negocio_plus',
     subscription_status: 'active',
     stripe_customer_id: 'cus_demo_001',
     reviews_count: 342,
     ai_replies_count: 318,
-    mrr_cents: 7900,
+    mrr_cents: 3900,
     created_at: '2025-05-02T10:00:00Z',
     suspended: false,
   },
@@ -35,12 +38,12 @@ export const demoTenants: DemoTenant[] = [
     name: 'Restaurante La Brasa',
     slug: 'la-brasa',
     owner_email: 'reservas@labrasa.es',
-    plan: 'pro',
+    plan: 'negocio',
     subscription_status: 'active',
     stripe_customer_id: 'cus_demo_002',
     reviews_count: 187,
     ai_replies_count: 150,
-    mrr_cents: 2900,
+    mrr_cents: 1900,
     created_at: '2025-08-19T10:00:00Z',
     suspended: false,
   },
@@ -49,12 +52,12 @@ export const demoTenants: DemoTenant[] = [
     name: 'Taller Rueda Libre',
     slug: 'rueda-libre',
     owner_email: 'taller@ruedalibre.es',
-    plan: 'pro',
+    plan: 'negocio',
     subscription_status: 'trialing',
     stripe_customer_id: 'cus_demo_003',
     reviews_count: 24,
     ai_replies_count: 9,
-    mrr_cents: 2900,
+    mrr_cents: 1900,
     created_at: '2026-09-01T10:00:00Z',
     suspended: false,
   },
@@ -149,101 +152,204 @@ import {
   type UsageMetric,
 } from '@/lib/plans';
 
-export type DemoPlanId = 'pro' | 'business';
+export type DemoPlanId = PlanId;
+
+/* ------------------------------------------------------------------ */
+/* Personas de demostración: una por plan (bar, clínica, tienda y      */
+/* multi-marca). La demo debe enseñar EXACTAMENTE lo que vería un       */
+/* cliente real de ese plan.                                            */
+/* ------------------------------------------------------------------ */
+
+type DemoPersona = {
+  name: string;
+  slug: string;
+  email: string;
+  phone: string;
+  web: string;
+  type: string;
+  tone: 'cercano' | 'profesional' | 'formal';
+  rating: number;
+  /** % del ciclo consumido en los medidores simulados. */
+  ratio: number;
+  commerce: boolean;
+  reviewsCount: number;
+  whatsappSent: number;
+  googleCalls: number;
+};
+
+const PERSONAS: Record<DemoPlanId, DemoPersona> = {
+  negocio: {
+    name: 'Bar Lumen',
+    slug: 'demo-bar-lumen',
+    email: 'hola@barlumen.demo',
+    phone: '+34 910 000 111',
+    web: 'barlumen.demo',
+    type: 'bar de barrio con terraza',
+    tone: 'cercano',
+    rating: 4.4,
+    ratio: 0.58,
+    commerce: false,
+    reviewsCount: 3,
+    whatsappSent: 41,
+    googleCalls: 22,
+  },
+  negocio_plus: {
+    name: 'Clínica Dental Sonrisa',
+    slug: 'demo-sonrisa',
+    email: 'citas@sonrisa.demo',
+    phone: '+34 910 000 222',
+    web: 'clinicasonrisa.demo',
+    type: 'clínica dental con 5 sedes',
+    tone: 'profesional',
+    rating: 4.8,
+    ratio: 0.47,
+    commerce: false,
+    reviewsCount: 4,
+    whatsappSent: 63,
+    googleCalls: 35,
+  },
+  tiendas: {
+    name: 'Aurora Home',
+    slug: 'demo-aurora-home',
+    email: 'hola@aurorahome.demo',
+    phone: '+34 910 000 333',
+    web: 'aurorahome.demo',
+    type: 'tienda online de decoración (dropshipping)',
+    tone: 'cercano',
+    rating: 4.6,
+    ratio: 0.42,
+    commerce: true,
+    reviewsCount: 5,
+    whatsappSent: 132,
+    googleCalls: 64,
+  },
+  tiendas_plus: {
+    name: 'MultiDeco',
+    slug: 'demo-multideco',
+    email: 'atencion@multideco.demo',
+    phone: '+34 910 000 444',
+    web: 'multideco.demo',
+    type: 'ecommerce de hogar y jardín multi-marca',
+    tone: 'profesional',
+    rating: 4.5,
+    ratio: 0.36,
+    commerce: true,
+    reviewsCount: 6,
+    whatsappSent: 402,
+    googleCalls: 180,
+  },
+};
 
 /** Empresa de ejemplo para la vista demo, con su plan real de catálogo. */
 export function demoTenantFor(plan: DemoPlanId): TenantInfo {
   const now = new Date();
+  const persona = PERSONAS[plan];
   return {
     id: `demo-prev-${plan}`,
-    name: plan === 'business' ? 'Restaurante La Brasa' : 'Clínica Dental Sonrisa',
-    slug: plan === 'business' ? 'demo-la-brasa' : 'demo-sonrisa',
+    name: persona.name,
+    slug: persona.slug,
     plan,
     subscription_status: 'trialing',
     suspended: false,
     trial_ends_at: new Date(now.getTime() + 5 * 86_400_000).toISOString(),
     access: true,
     settings: {
-      tone: plan === 'business' ? 'cercano' : 'profesional',
-      business_type: plan === 'business' ? 'restaurante con terraza' : 'clínica dental',
-      contact_email: plan === 'business' ? 'hola@labrasa.demo' : 'citas@sonrisa.demo',
-      contact_phone: plan === 'business' ? '+34 910 000 111' : '+34 910 000 222',
-      website: plan === 'business' ? 'labrasa.demo' : 'sonrisa.demo',
+      tone: persona.tone,
+      business_type: persona.type,
+      contact_email: persona.email,
+      contact_phone: persona.phone,
+      website: persona.web,
       place_id: 'ChIJL2OmBZ2bUg0R2HfHtIz4Gk (demo)',
-      place_rating: plan === 'business' ? 4.6 : 4.8,
+      place_rating: persona.rating,
       whatsapp_to: '34600000000',
-      tripadvisor_url: 'https://www.tripadvisor.es/Restaurant_Review-demo',
-      trustpilot_url: plan === 'business' ? 'https://es.trustpilot.com/review/demo.es' : undefined,
+      tripadvisor_url: persona.commerce ? undefined : 'https://www.tripadvisor.es/Attraction_Review-demo',
+      trustpilot_url: 'https://es.trustpilot.com/review/demo.es',
       funnel_enabled: true,
     },
-    integrations:
-      plan === 'business'
-        ? [
-            { provider: 'google', status: 'connected', last_sync_at: new Date(now.getTime() - 2 * 60_000).toISOString() },
-            { provider: 'trustpilot', status: 'connected', last_sync_at: new Date(now.getTime() - 6 * 3_600_000).toISOString() },
-            { provider: 'shopify', status: 'connected', last_sync_at: new Date(now.getTime() - 26 * 3_600_000).toISOString() },
-            { provider: 'tripadvisor', status: 'pending_setup', last_sync_at: null },
-          ]
-        : [
-            { provider: 'google', status: 'connected', last_sync_at: new Date(now.getTime() - 3 * 3_600_000).toISOString() },
-            { provider: 'whatsapp', status: 'connected', last_sync_at: null },
-            { provider: 'trustpilot', status: 'disconnected', last_sync_at: null },
-          ],
+    integrations: persona.commerce
+      ? [
+          { provider: 'google', status: 'connected', last_sync_at: new Date(now.getTime() - 2 * 60_000).toISOString() },
+          { provider: 'trustpilot', status: 'connected', last_sync_at: new Date(now.getTime() - 6 * 3_600_000).toISOString() },
+          { provider: 'shopify', status: 'connected', last_sync_at: new Date(now.getTime() - 26 * 3_600_000).toISOString() },
+          { provider: 'tripadvisor', status: 'pending_setup', last_sync_at: null },
+        ]
+      : [
+          { provider: 'google', status: 'connected', last_sync_at: new Date(now.getTime() - 3 * 3_600_000).toISOString() },
+          { provider: 'whatsapp', status: 'connected', last_sync_at: null },
+          { provider: 'tripadvisor', status: 'connected', last_sync_at: new Date(now.getTime() - 8 * 3_600_000).toISOString() },
+          { provider: 'trustpilot', status: 'pending_setup', last_sync_at: null },
+        ],
   };
 }
 
-/** Reseñas simuladas coherentes con el plan (más fuentes cuanto mayor es el plan). */
-export function demoReviewsFor(plan: DemoPlanId): DemoReview[] {
-  const tenant = demoTenantFor(plan).name;
+/** Banco de reseñas por tipo de negocio (cada demo ve las suyas, coherentes con su sector). */
+function personaReviews(persona: DemoPersona, tenant: string): DemoReview[] {
   const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
-  const base: DemoReview[] = [
+  const local: DemoReview[] = [
     {
       id: 'prev-r-1', tenant, author: 'Marta G.', rating: 5,
-      text: 'Trato increíble desde que entras por la puerta. Sin dolor, rapidísimos y con muchísima paciencia.',
+      text: 'Trato increíble desde que cruzas la puerta. Se nota que conocen a todo el barrio.',
       source: 'google', created_at: daysAgo(1), replied: true, verified: true,
-      reply: 'Hola Marta, muchísimas gracias por tu reseña. Nos alegra saber que el trato del equipo te hizo sentir como en casa. ¡Te esperamos pronto!',
+      reply: `Hola Marta, muchísimas gracias por tu reseña. Que se sienta como en casa es justo lo que buscamos en ${tenant}. ¡Te esperamos en la terraza!`,
     },
     {
       id: 'prev-r-2', tenant, author: 'Javier R.', rating: 2,
-      text: 'Me cambiaron la cita dos veces sin avisar con tiempo. Espero que mejoren la comunicación.',
+      text: 'Tuvimos que esperar bastante un viernes por la noche y nadie nos avisó. Mejorable.',
       source: 'google', created_at: daysAgo(2), replied: false, verified: true,
-      flagged_private: true, private_note: 'Llamado a las 10:15. Reconocido el fallo, nueva cita preferente el jueves. Sin escalamiento.',
+      flagged_private: true, private_note: 'Llamado a las 10:15. Reconocido el pico del viernes, reservaremos su mesa preferente el jueves. Sin escalamiento.',
     },
     {
       id: 'prev-r-3', tenant, author: 'Lucía F.', rating: 4,
-      text: 'Muy bien en general, aunque en hora punta el servicio fue un poco lento.',
+      text: 'Muy bien en general; en hora punta el servicio fue un poco lento.',
       source: 'google', created_at: daysAgo(3), replied: false, verified: false,
     },
   ];
-  if (plan === 'business') {
-    base.push(
-      {
-        id: 'prev-r-4', tenant, author: 'Óscar P.', rating: 5,
-        text: 'Pedí online y en dos días lo tenía en casa, con seguimiento por WhatsApp en todo momento.',
-        source: 'trustpilot', created_at: daysAgo(4), replied: true, verified: true,
-        reply: '¡Gracias, Óscar! Nos encanta que el seguimiento te haya dado tranquilidad. Para lo que necesites, aquí estamos.',
-      },
-      {
-        id: 'prev-r-5', tenant, author: 'Ana V.', rating: 3,
-        text: 'La calidad es buena, pero tardó más de lo prometido en llegar.',
-        source: 'trustpilot', created_at: daysAgo(5), replied: false, verified: true,
-        flagged_private: true, private_note: null,
-      },
-      {
-        id: 'prev-r-6', tenant, author: 'Rafael S.', rating: 5,
-        text: 'Atención de 10. Resolvieron una incidencia de mi pedido el mismo día.',
-        source: 'google', created_at: daysAgo(6), replied: true, verified: true,
-        reply: 'Rafael, mil gracias. Resolver rápido es nuestra prioridad; nos alegra haberlo conseguido contigo.',
-      },
-    );
-  }
-  return base;
+  const extraClinic: DemoReview[] = [
+    {
+      id: 'prev-r-4', tenant, author: 'Andrés M.', rating: 5,
+      text: 'Me quitaron el dolor el mismo día y con muchísima paciencia. 10/10.',
+      source: 'trustpilot', created_at: daysAgo(4), replied: false, verified: true,
+    },
+  ];
+  const commerce: DemoReview[] = [
+    {
+      id: 'prev-c-1', tenant, author: 'Óscar P.', rating: 5,
+      text: 'Pedí online y en dos días lo tenía en casa, con avisos por WhatsApp en todo momento.',
+      source: 'trustpilot', created_at: daysAgo(4), replied: true, verified: true,
+      reply: '¡Gracias, Óscar! Nos encanta que el seguimiento te haya dado tranquilidad. Para lo que necesites, aquí estamos.',
+    },
+    {
+      id: 'prev-c-2', tenant, author: 'Ana V.', rating: 3,
+      text: 'La calidad es buena, pero tardó más de lo prometido en llegar.',
+      source: 'trustpilot', created_at: daysAgo(5), replied: false, verified: true,
+      flagged_private: true, private_note: null,
+    },
+    {
+      id: 'prev-c-3', tenant, author: 'Rafael S.', rating: 5,
+      text: 'Atención de 10. Resolvieron una incidencia de mi pedido el mismo día.',
+      source: 'google', created_at: daysAgo(6), replied: true, verified: true,
+      reply: 'Rafael, mil gracias. Resolver rápido es nuestra prioridad; nos alegra haberlo conseguido contigo.',
+    },
+  ];
+  const pool = persona.commerce
+    ? [...local.slice(0, 1), ...commerce, local[2]]
+    : persona.type.includes('clínica')
+      ? [...local, ...extraClinic]
+      : local;
+  return pool.slice(0, Math.max(1, persona.reviewsCount));
+}
+
+/** Reseñas simuladas coherentes con el plan (más fuentes y volumen cuanto mayor es el plan). */
+export function demoReviewsFor(plan: DemoPlanId): DemoReview[] {
+  const persona = PERSONAS[plan];
+  return personaReviews(persona, persona.name);
 }
 
 /** Snapshot simulado de cuota/almacenamiento/IA con la misma forma que `/api/tenants/usage`. */
 export function demoUsageFor(plan: DemoPlanId): UsageResponse {
+  const persona = PERSONAS[plan];
   const p = planOf(plan);
-  const ratio = plan === 'business' ? 0.42 : 0.58; // % consumido del ciclo
+  const ratio = persona.ratio; // % consumido del ciclo
   const mk = (quota: number, r: number): UsageResponse['metrics'][UsageMetric] => {
     const used = Math.max(1, Math.round(quota * r));
     const pct = Math.round((used / Math.max(1, quota)) * 100);
@@ -256,7 +362,7 @@ export function demoUsageFor(plan: DemoPlanId): UsageResponse {
     syncs: mk(p.limits.syncsPerMonth, ratio * 0.9),
   };
   const tokensUsed = Math.round(p.limits.aiTokensPerMonth * ratio * 0.9);
-  const storedUsed = Math.round(p.limits.reviewsStored * (plan === 'business' ? 0.24 : 0.37));
+  const storedUsed = Math.round(p.limits.reviewsStored * (0.2 + ratio * 0.3));
   const auditUsed = Math.round(p.limits.auditRows * 0.3);
   const cap = (capV: number, used: number, label: string) => {
     const pct = Math.round((used / Math.max(1, capV)) * 100);
@@ -295,7 +401,7 @@ export function demoUsageFor(plan: DemoPlanId): UsageResponse {
     storage: {
       reviews: cap(p.limits.reviewsStored, storedUsed, 'Opiniones guardadas'),
       audit: cap(p.limits.auditRows, auditUsed, 'Auditoría'),
-      integrations: cap(p.limits.integrations, plan === 'business' ? 3 : 2, 'Conexiones'),
+      integrations: cap(p.limits.integrations, persona.commerce ? 3 : 2, 'Conexiones'),
       ai: cap(p.limits.aiRows, metrics.ai.used * 2, 'Contabilidad IA'),
       limitMb: Math.round(p.limits.storageMb),
       usedMb,
@@ -305,8 +411,8 @@ export function demoUsageFor(plan: DemoPlanId): UsageResponse {
     },
     storageLimitMb: Math.round(p.limits.storageMb),
     storageUsedMb: usedMb,
-    extras: { requests: 0, reviews: plan === 'business' ? 2000 : 0, ai: 0, syncs: 0, stored: 0 },
-    packs: plan === 'business' ? 1 : 0,
+    extras: { requests: 0, reviews: persona.commerce ? 2000 : 0, ai: 0, syncs: 0, stored: 0 },
+    packs: persona.commerce ? 1 : 0,
     catalog: ADDON_CATALOG.map((a) => ({
       id: a.id, name: a.name, description: a.description, priceCents: a.priceCents,
       price: formatEur(a.priceCents), metric: a.metric, amount: a.amount, badge: a.badge ?? null,
@@ -314,8 +420,8 @@ export function demoUsageFor(plan: DemoPlanId): UsageResponse {
     counters: {
       reviews_ingested: metrics.reviews.used,
       ai_replies: metrics.ai.used,
-      whatsapp_sent: plan === 'business' ? 132 : 41,
-      google_calls: plan === 'business' ? 64 : 22,
+      whatsapp_sent: persona.whatsappSent,
+      google_calls: persona.googleCalls,
       ai_tokens_in: Math.round(tokensUsed * 0.62),
       ai_tokens_out: Math.round(tokensUsed * 0.38),
     },

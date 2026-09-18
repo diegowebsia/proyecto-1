@@ -7,7 +7,7 @@ import { systemLog } from '@/lib/logger';
 const Body = z.object({
   op: z.enum(['suspend', 'unsuspend', 'delete', 'set-plan', 'ping']),
   tenantId: z.string().optional(),
-  plan: z.enum(['pro', 'business']).optional(),
+  plan: z.enum(['negocio', 'negocio_plus', 'tiendas', 'tiendas_plus']).optional(),
 });
 
 /**

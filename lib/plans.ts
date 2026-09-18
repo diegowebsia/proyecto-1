@@ -5,10 +5,14 @@
  * 100% client-safe: este fichero NO importa nada de Node ni de Supabase,
  * por lo que puede usarse en la landing, el dashboard y el servidor.
  *
- * MODELO 100% DE PAGO — 2 planes y nada más (sin plan gratuito):
+ * MODELO 100% DE PAGO — 4 planes (2 tracks × 2 niveles), sin plan gratuito:
  *
- *   · `pro`       → PRO        ·  29 €/mes  · 500 peticiones/mes
- *   · `business`  → BUSINESS   ·  79 €/mes  · 2.000 peticiones/mes
+ *   TRACK NEGOCIOS LOCALES (reseñas + IA; sin tienda):
+ *   · `negocio`        → Negocio        ·  19 €/mes
+ *   · `negocio_plus`   → Negocio Plus   ·  39 €/mes  (mismos módulos, límites ×3)
+ *   TRACK COMERCIO ONLINE (lo mismo + tienda y WhatsApp al entregar):
+ *   · `tiendas`        → Tiendas        ·  49 €/mes
+ *   · `tiendas_plus`   → Tiendas Plus   ·  89 €/mes  (límites ×3 y 30 sedes)
  *
  * Todos los planes de pago incluyen {TRIAL_DAYS} días de prueba gratis con
  * tarjeta (`trial_period_days: 7` en Stripe Checkout). Sin suscripción activa
@@ -21,16 +25,17 @@
  *   2. TOPES DE BASE DE DATOS (`limits.reviewsStored`, `auditRows`,
  *      `integrations`, `logRetentionDays`): cuántas filas puede retener
  *      cada empresa para que PostgreSQL/Supabase nunca se desborde.
- *   3. FEATURES (`features`): qué integraciones están habilitadas.
+ *   3. FEATURES (`features`): qué integraciones están habilitadas. La gran
+ *      diferencia entre tracks: `storeIntegration` + `whatsappOrders` SOLO en
+ *      los planes Tiendas (e-commerce y dropshipping).
  *
- * Los planes antiguos (`free`, `trial`, `resenas`, `completo`, `starter`,
- * `enterprise`) siguen resolviéndose por compatibilidad con las filas ya
+ * Los planes antiguos (`free`, `trial`, `resenas`, `completo`, `pro`,
+ * `business`…) siguen resolviéndose por compatibilidad con las filas ya
  * guardadas en la base de datos, siempre hacia un plan DE PAGO:
- *   free/trial/gratis → pro · starter/standard/resenas → pro ·
- *   enterprise/completo/ecommerce → business.
+ *   pro/free/trial → negocio · business/completo/enterprise → tiendas.
  */
 
-export type PlanId = 'pro' | 'business';
+export type PlanId = 'negocio' | 'negocio_plus' | 'tiendas' | 'tiendas_plus';
 
 /** Métricas medibles contra `usage_counters` (una columna física por métrica). */
 export type UsageMetric = 'requests' | 'reviews' | 'ai' | 'syncs';
@@ -45,8 +50,10 @@ export const METRIC_LABEL: Record<UsageMetric, string> = {
 
 /** Alias comercial corto (usado en marketing). */
 export const PLAN_ALIASES: Record<PlanId, string> = {
-  pro: 'Pro',
-  business: 'Business',
+  negocio: 'Negocio',
+  negocio_plus: 'Negocio Plus',
+  tiendas: 'Tiendas',
+  tiendas_plus: 'Tiendas Plus',
 };
 
 /**
@@ -180,6 +187,8 @@ export type PlanLimits = {
 
 export type PlanDefinition = {
   id: PlanId;
+  /** Track comercial: 'local' (sin tienda) | 'commerce' (pedidos + WhatsApp al entregar). */
+  track: 'local' | 'commerce';
   /** Nombre interno (BD/Stripe). */
   label: string;
   /** Nombre comercial. */
@@ -216,29 +225,65 @@ const SUPPORT_FULL: PlanFeatures = {
 };
 
 export const PLANS: Record<PlanId, PlanDefinition> = {
-  /* -------------------------------- PRO -------------------------------- */
-  pro: {
-    id: 'pro',
-    label: 'Pro',
-    name: 'Pro',
-    tier: 'Pro',
-    price: '29 €',
-    priceCents: 2900,
-    pitch: 'Para negocios con reseñas cada semana: email + WhatsApp, IA y sincronización cada 6 h.',
+  /* ------------------------------ NEGOCIO ------------------------------ */
+  negocio: {
+    id: 'negocio',
+    label: 'Negocio',
+    name: 'Negocio',
+    tier: 'Negocio',
+    track: 'local',
+    price: '19 €',
+    priceCents: 1900,
+    pitch:
+      'Para bares, clínicas, salones y todo negocio de mostrador: reseñas de Google/TripAdvisor/Trustpilot en una bandeja e IA que responde como tú.',
     limits: {
-      requestsPerMonth: 500,
-      reviewsPerMonth: 1_000,
-      aiRepliesPerMonth: 300,
-      aiTokensPerMonth: 250_000,
-      syncsPerMonth: 120,
+      requestsPerMonth: 400,
+      reviewsPerMonth: 800,
+      aiRepliesPerMonth: 200,
+      aiTokensPerMonth: 150_000,
+      syncsPerMonth: 60,
       tenants: 1,
-      locations: 3,
-      reviewsStored: 5_000,
-      auditRows: 10_000,
-      integrations: 6,
-      aiRows: 20000,
-      logRetentionDays: 180,
-      storageMb: 2_048,
+      locations: 1,
+      reviewsStored: 3_000,
+      auditRows: 8_000,
+      integrations: 4,
+      aiRows: 15_000,
+      logRetentionDays: 120,
+      storageMb: 1_024,
+    },
+    features: {
+      ...SUPPORT_FULL,
+      storeIntegration: false,
+      whatsappOrders: false,
+      support: 'comunidad',
+    },
+  },
+
+  /* --------------------------- NEGOCIO PLUS ---------------------------- */
+  negocio_plus: {
+    id: 'negocio_plus',
+    label: 'Negocio Plus',
+    name: 'Negocio Plus',
+    tier: 'Negocio Plus',
+    track: 'local',
+    price: '39 €',
+    priceCents: 3900,
+    pitch:
+      'Todo lo de Negocio con límites ×3, varias sedes y sincronización cada 3 h. Para locales con mucho trajín o varios establecimientos.',
+    limits: {
+      requestsPerMonth: 1_200,
+      reviewsPerMonth: 2_500,
+      aiRepliesPerMonth: 700,
+      aiTokensPerMonth: 600_000,
+      syncsPerMonth: 360,
+      tenants: 1,
+      locations: 5,
+      reviewsStored: 10_000,
+      auditRows: 20_000,
+      integrations: 8,
+      aiRows: 40_000,
+      logRetentionDays: 240,
+      storageMb: 4_096,
     },
     features: {
       ...SUPPORT_FULL,
@@ -248,15 +293,17 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     },
   },
 
-  /* ------------------------------ BUSINESS ------------------------------ */
-  business: {
-    id: 'business',
-    label: 'Business',
-    name: 'Business',
-    tier: 'Business',
-    price: '79 €',
-    priceCents: 7900,
-    pitch: 'Para tiendas y cadenas: pedidos + WhatsApp automático, 10 sedes y soporte prioritario.',
+  /* ------------------------------- TIENDAS ------------------------------ */
+  tiendas: {
+    id: 'tiendas',
+    label: 'Tiendas',
+    name: 'Tiendas',
+    tier: 'Tiendas',
+    track: 'commerce',
+    price: '49 €',
+    priceCents: 4900,
+    pitch:
+      'Para e-commerce y dropshipping: todo lo de Negocio Plus más conexión con Shopify/Woo/TPV y WhatsApp automático cuando el paquete se entrega.',
     limits: {
       requestsPerMonth: 2_000,
       reviewsPerMonth: 5_000,
@@ -268,16 +315,45 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
       reviewsStored: 25_000,
       auditRows: 50_000,
       integrations: 20,
-      aiRows: 100000,
+      aiRows: 100_000,
       logRetentionDays: 365,
       storageMb: 10_240,
     },
-    features: SUPPORT_FULL,
+    features: { ...SUPPORT_FULL, support: 'email' },
+  },
+
+  /* ---------------------------- TIENDAS PLUS ---------------------------- */
+  tiendas_plus: {
+    id: 'tiendas_plus',
+    label: 'Tiendas Plus',
+    name: 'Tiendas Plus',
+    tier: 'Tiendas Plus',
+    track: 'commerce',
+    price: '89 €',
+    priceCents: 8900,
+    pitch:
+      'El plan de volumen: límites ×3 sobre Tiendas, sincronización cada 30 min, 30 sedes, API de ingesta y soporte prioritario.',
+    limits: {
+      requestsPerMonth: 6_000,
+      reviewsPerMonth: 15_000,
+      aiRepliesPerMonth: 4_000,
+      aiTokensPerMonth: 3_000_000,
+      syncsPerMonth: 2_160,
+      tenants: 1,
+      locations: 30,
+      reviewsStored: 100_000,
+      auditRows: 150_000,
+      integrations: 40,
+      aiRows: 300_000,
+      logRetentionDays: 730,
+      storageMb: 25_600,
+    },
+    features: { ...SUPPORT_FULL, support: 'prioritario' },
   },
 };
 
 /** Lista ordenada para pintar en la tabla de precios pública (solo planes de pago). */
-export const PLAN_CATALOG: PlanDefinition[] = [PLANS.pro, PLANS.business];
+export const PLAN_CATALOG: PlanDefinition[] = [PLANS.negocio, PLANS.negocio_plus, PLANS.tiendas, PLANS.tiendas_plus];
 
 
 /**
@@ -309,13 +385,21 @@ export const PLAN_LIMITS: Record<
  */
 export function resolvePlan(plan: string | null | undefined): PlanId {
   const value = (plan ?? '').trim().toLowerCase();
-  if (value === 'pro' || value === 'business') return value;
-  // Retrocompatibilidad con nombres legacy de la base de datos (todos → pago).
-  if (value === 'completo' || value === 'completo-ecommerce' || value === 'ecommerce' || value === 'enterprise')
-    return 'business';
-  // `free`, `trial`, `gratis`, `starter`, `standard`, `resenas` y cualquier
-  // otro valor → plan de pago más barato.
-  return 'pro';
+  if (value === 'negocio' || value === 'negocio_plus' || value === 'tiendas' || value === 'tiendas_plus')
+    return value;
+  // Retrocompatibilidad con los ids del catálogo anterior (2 planes) y legacy.
+  if (value === 'business' || value === 'completo' || value === 'completo-ecommerce' || value === 'ecommerce' || value === 'enterprise')
+    return 'tiendas';
+  // `pro`, `free`, `trial`, `gratis`, `starter`, `standard`, `resenas` y
+  // cualquier otro valor → plan de pago más barato del track local.
+  return 'negocio';
+}
+
+/** Plan inmediato superior para los mensajes de mejora (upsell honesto). */
+export function nextPlanFor(plan: string | null | undefined): PlanDefinition | null {
+  const idx = PLAN_CATALOG.findIndex((p) => p.id === resolvePlan(plan));
+  if (idx === -1 || idx === PLAN_CATALOG.length - 1) return null;
+  return PLAN_CATALOG[idx + 1];
 }
 
 export function planOf(plan: string | null | undefined): PlanDefinition {
@@ -323,7 +407,7 @@ export function planOf(plan: string | null | undefined): PlanDefinition {
 }
 
 /** Todos los planes del catálogo son de pago (se mantiene por compatibilidad). */
-export function isPaidPlan(_plan: string | null | undefined): _plan is 'pro' | 'business' {
+export function isPaidPlan(_plan: string | null | undefined): _plan is PlanId {
   return true;
 }
 

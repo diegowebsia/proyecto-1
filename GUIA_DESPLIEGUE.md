@@ -55,9 +55,12 @@ Tiempo estimado: **~40 minutos**.
 ## 3. Stripe: productos, precios y webhook (25 min)
 
 1. Activa tu cuenta (empresa/autónomo + IBAN) y pasa a **Live mode**.
-2. **Product catalog** → crea dos productos mensuales (**sin plan gratuito**):
-   - `Solo Reseñas` → 29 €/mes → copia su **Price ID** (`price_…`) → `STRIPE_PRICE_PRO`.
-   - `Completo E-commerce` → 79 €/mes → copia su **Price ID** → `STRIPE_PRICE_BUSINESS`.
+2. **Product catalog** → crea los 4 productos mensuales (**sin plan gratuito**, 2 familias):
+   - `ReviewFlow · Negocio` → 19 €/mes → copia su **Price ID** (`price_…`) → `STRIPE_PRICE_NEGOCIO`.
+   - `ReviewFlow · Negocio Plus` → 39 €/mes → `STRIPE_PRICE_NEGOCIO_PLUS`.
+   - `ReviewFlow · Tiendas` → 49 €/mes → `STRIPE_PRICE_TIENDAS`.
+   - `ReviewFlow · Tiendas Plus` → 89 €/mes → `STRIPE_PRICE_TIENDAS_PLUS`.
+   (Legacy: `STRIPE_PRICE_PRO`/`STRIPE_PRICE_BUSINESS` se aceptan como alias de Negocio/Tiendas.)
    - Activa **Smart Retries + email de impago** (Settings → Billing → Revenue recovery) y los
      **emails de prueba que termina** para el trial de 7 días (lo aplica el código).
 3. **Recargas de pago único** (opcional pero recomendado): +1.000 peticiones 9 €,
@@ -71,7 +74,7 @@ Tiempo estimado: **~40 minutos**.
    - Copia el **Signing secret** (`whsec_…`).
 6. Prueba con una tarjeta live real pequeña o con un cupón del 100 % el primer mes; verifica en `/admin` que el tenant pasa a `trialing` y luego a `active`.
 
-Variables resultantes: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_BUSINESS` (+ `STRIPE_PRICE_ADDON_{REQUESTS,REVIEWS,AI,SYNCS}` si usas Price IDs para las recargas).
+Variables resultantes: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_NEGOCIO`, `STRIPE_PRICE_NEGOCIO_PLUS`, `STRIPE_PRICE_TIENDAS`, `STRIPE_PRICE_TIENDAS_PLUS` (+ `STRIPE_PRICE_ADDON_{REQUESTS,REVIEWS,AI,SYNCS}` si usas Price IDs para las recargas).
 
 ---
 
@@ -88,7 +91,7 @@ Variables resultantes: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRI
 3. `OPENAI_MODEL=gpt-4o-mini` (por defecto). Ajustes finos opcionales en `.env.example`:
    `OPENAI_TIMEOUT_MS`, `OPENAI_MAX_ATTEMPTS`, `OPENAI_RPM_PER_TENANT`, `OPENAI_MAX_CONCURRENCY`.
 4. **El coste ya está acotado por diseño**: cada plan tiene un presupuesto de tokens
-   (Pro 250.000 · Business 1.200.000 al mes). Al agotarlo, la API responde
+   (de 150.000 en Negocio a 3.000.000 en Tiendas Plus, al mes). Al agotarlo, la API responde
    `429 token_budget_exhausted` hasta el día 1 o hasta que el cliente compre la recarga de IA.
    A 0,15 $/1M de entrada y 0,60 $/1M de salida, un borrador cuesta ~0,0001 $.
 5. ¿Sin clave? La app funciona igual: usa plantilla local y heurísticas (fallback). Nunca se cae.

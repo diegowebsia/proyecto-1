@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import {
@@ -10,7 +10,7 @@ import {
   type DemoPlanId,
 } from '@/lib/demo';
 import { DashboardClient } from '@/app/dashboard/dashboard-client';
-import { PLAN_CATALOG } from '@/lib/plans';
+import { PLAN_CATALOG, PLANS, resolvePlan } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Demo pública del panel por plan — `/demo/pro` y `/demo/business`.
+ * Demo pública del panel por plan — `/demo/{negocio,negocio_plus,tiendas,tiendas_plus}`.
  *
  * · Renderiza el MISMO DashboardClient que ve un cliente suscrito, con los
  *   datos simulados del plan elegido (cuotas, embudo y reseñas de ejemplo).
@@ -29,7 +29,14 @@ export const metadata: Metadata = {
  */
 export default async function DemoPanelPage({ params }: { params: Promise<{ plan: string }> }) {
   const { plan: rawPlan } = await params;
-  const plan: DemoPlanId | null = rawPlan === 'pro' || rawPlan === 'business' ? rawPlan : null;
+  // Alias legacy (`/demo/pro`, `/demo/business`…) redirigen al plan equivalente.
+  if (rawPlan && !(PLAN_CATALOG.map((p) => p.id) as string[]).includes(rawPlan)) {
+    const legacy = PLANS[resolvePlan(rawPlan)];
+    if (legacy) redirect(`/demo/${legacy.id}`);
+  }
+  const plan: DemoPlanId | null = (PLAN_CATALOG.map((p) => p.id) as string[]).includes(rawPlan ?? '')
+    ? (rawPlan as DemoPlanId)
+    : null;
   if (!plan) notFound();
 
   const tenant = demoTenantFor(plan);

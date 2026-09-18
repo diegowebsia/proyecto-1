@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { addonPackFromPriceId, getStripe, planFromPriceId } from '@/lib/stripe';
-import { currentCycle, resolveAddonPack, type AddonPack, type PlanId } from '@/lib/plans';
+import { currentCycle, resolveAddonPack, type AddonPack, type PlanId, resolvePlan } from '@/lib/plans';
 import { env } from '@/lib/env';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { systemLog } from '@/lib/logger';
@@ -15,9 +15,9 @@ export const dynamic = 'force-dynamic';
  * ============================================================
  * Webhook de Stripe — FUENTE DE VERDAD del estado comercial
  * ============================================================
- * Modelo 100% DE PAGO v3.9.0 (2 planes: Pro / Business, sin plan gratuito):
+ * Modelo 100% DE PAGO (4 planes: negocio | negocio_plus | tiendas | tiendas_plus; sin plan gratuito):
  *
- *   · checkout.session.completed  → alta de suscripción Pro o Business
+ *   · checkout.session.completed  → alta de suscripción (cualquiera de los 4 planes)
  *                                   (trial 7 días) o compra de una recarga.
  *   · invoice.payment_succeeded   → cobro correcto: refresca el estado de la
  *                                   suscripción y aplica las recargas facturadas.
@@ -64,8 +64,10 @@ export async function GET() {
     mode: env.stripeSecretKey.startsWith('sk_live_') ? 'live' : env.stripeSecretKey ? 'test' : 'sin-clave',
     events: STRIPE_EVENTS,
     prices: {
-      pro: Boolean(env.stripePricePro),
-      business: Boolean(env.stripePriceBusiness),
+      negocio: Boolean(env.stripePriceNegocio),
+      negocio_plus: Boolean(env.stripePriceNegocioPlus),
+      tiendas: Boolean(env.stripePriceTiendas),
+      tiendas_plus: Boolean(env.stripePriceTiendasPlus),
       addons: {
         requests: Boolean(env.stripePriceAddonRequests),
         reviews: Boolean(env.stripePriceAddonReviews),
@@ -194,12 +196,11 @@ function mapStripeStatus(s: Stripe.Subscription.Status): string {
   return 'none';
 }
 
-/** Plan (`pro`/`business`) de una suscripción o sesión de Checkout. */
+/** Plan de una suscripción o sesión de Checkout (4 planes v3.16.0). */
 function resolveSubPlan(priceId?: string | null, metaPlan?: string | null): PlanId {
   const byPrice = planFromPriceId(priceId);
   if (byPrice) return byPrice;
-  if (metaPlan === 'business') return 'business';
-  return 'pro';
+  return resolvePlan(metaPlan);
 }
 
 /* ------------------------------------------------------------------ */

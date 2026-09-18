@@ -297,7 +297,7 @@ export function TenantCard({
                       ? integ('shopify') || integ('woocommerce') || integ('store')
                         ? 'Conectada · WhatsApp al entregar activo'
                         : 'Un clic y nos encargamos nosotros'
-                      : 'Incluida en el plan Business',
+                      : 'Propia de los planes Tiendas',
                     content: <StoreConnect tenant={t} demo={demo} preview={preview} />,
                   },
                   {

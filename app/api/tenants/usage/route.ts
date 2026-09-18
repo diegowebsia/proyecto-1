@@ -84,7 +84,7 @@ export async function GET(req: Request) {
   const admin = createAdminClient();
 
   if (!admin) {
-    return NextResponse.json({ ok: true, demo: true, ...payload(demoQuotaCheck('pro')) });
+    return NextResponse.json({ ok: true, demo: true, ...payload(demoQuotaCheck('negocio')) });
   }
 
   const parsed = Query.safeParse({ tenantId: url.searchParams.get('tenantId') });

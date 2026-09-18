@@ -30,7 +30,7 @@ const MARKETING_LINKS: Array<[string, string]> = [
   ['Planes', '#planes'],
   ['Ampliaciones', '#ampliaciones'],
   ['FAQ', '#faq'],
-  ['Demo', '/demo/business'],
+  ['Demo', '/demo/tiendas'],
 ];
 
 export function SiteHeader({

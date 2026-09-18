@@ -67,10 +67,10 @@ export function AuthForm({ mode }: { mode: 'signin' | 'signup' }) {
         toast({
           kind: 'success',
           title: '¡Cuenta creada!',
-          body: 'Elige tu plan de pago: Pro o Business con 7 días de prueba gratis.',
+          body: 'Elige tu plan de pago: cualquiera de los 4, con 7 días de prueba gratis.',
         });
         const plan = params.get('plan');
-        const valid = plan === 'pro' || plan === 'business' ? plan : null;
+        const valid = plan ? resolvePlan(plan) : null;
         router.push(valid ? `/bienvenido?plan=${valid}` : '/bienvenido');
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -183,7 +183,7 @@ export function AuthForm({ mode }: { mode: 'signin' | 'signup' }) {
             </h1>
             <p className="mt-1.5 text-sm text-ink-300">
               {mode === 'signup'
-                ? 'Elige Pro o Business: tienes 7 días de prueba gratis con tarjeta.'
+                ? 'Elige tu plan: tienes 7 días de prueba gratis con tarjeta.'
                 : 'Accede a tu panel de reseñas.'}
             </p>
 

@@ -15,7 +15,7 @@ const Body = z.object({
   rating: z.number().min(1).max(5),
   text: z.string().max(4000).default(''),
   verified: z.boolean().default(false),
-  /** Móvil del cliente (solo plan Business): dispara el WhatsApp post-venta. */
+  /** Móvil del cliente (planes Tiendas): dispara el WhatsApp post-venta. */
   customer_phone: z.string().max(25).optional(),
   order_id: z.string().max(100).optional(),
 });
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // WhatsApp post-venta al CLIENTE (solo si viene móvil + pedido: plan Business).
+  // WhatsApp post-venta al CLIENTE (solo si viene móvil + pedido: familias Tiendas).
   let orderMessage: { ok: boolean; error?: string } = { ok: false };
   if (input.customer_phone && input.order_id) {
     try {

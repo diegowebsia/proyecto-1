@@ -70,9 +70,13 @@ export async function POST(req: Request) {
   }
 
   const { data: tenant } = await admin.from('tenants').select('plan').eq('id', tenantId).single();
-  if (planOf(tenant?.plan).id !== 'business') {
+  if (!planOf(tenant?.plan).features.storeIntegration) {
     return NextResponse.json(
-      { error: 'La conexión con tienda requiere el plan Business.', checkoutUrl: '/bienvenido?plan=business' },
+      {
+        error: 'Conectar tu tienda está disponible en los planes Tiendas y Tiendas Plus (incluyen el WhatsApp automático al entregar).',
+        code: 'plan_locked',
+        upgradePlan: planOf(tenant?.plan).track === 'local' ? 'tiendas' : 'tiendas_plus',
+      },
       { status: 403 },
     );
   }

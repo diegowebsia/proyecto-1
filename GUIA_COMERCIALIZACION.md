@@ -41,9 +41,10 @@ Guías relacionadas: credenciales paso a paso en
 
 Decide y anota. Todo lo demás cuelga de aquí.
 
-- [ ] **Precios finales**: Pro **29 €/mes** y Business **79 €/mes** (los que trae el código), ¿los mantienes o los cambias?
-  Si los cambias, actualízalos **a la vez** en 3 sitios: productos de Stripe, `lib/plans.ts`
-  (`price` + `priceCents`) y textos comerciales. Recargas: 9 / 12 / 15 / 6 € (mismo criterio).
+- [ ] **Precios finales**: Negocio **19 €** · Negocio Plus **39 €** · Tiendas **49 €** · Tiendas Plus **89 €**
+  (los que trae el código), ¿los mantienes o los cambias? Si los cambias, actualízalos **a la vez**
+  en 3 sitios: productos de Stripe, `lib/plans.ts` (`price` + `priceCents`) y textos comerciales.
+  Recargas: 9 / 12 / 15 / 6 € (mismo criterio). Landing, /terminos, /admin y demos derivan del catálogo.
 - [ ] **Prueba gratis**: 7 días con tarjeta (la aplica el código con `trial_period_days: 7`).
   ¿La mantienes? Es tu principal argumento de venta.
 - [ ] **Nombre comercial**: ¿`ReviewFlow AI` u otro? Si lo cambias, afecta a `lib/site.ts`
@@ -125,8 +126,10 @@ Todo el dinero pasa por aquí. Hazlo con calma y en modo **Live**.
   hay que recrearlos.
 
 ### 4.2 Crea los productos y precios (mensuales, EUR)
-- [ ] Product catalog → **+ Add product** → `ReviewFlow · Pro` → **29 €** → Recurring / every 1 month → copia el `price_…` → `STRIPE_PRICE_PRO`.
-- [ ] Idem → `ReviewFlow · Business` → **79 €** → `STRIPE_PRICE_BUSINESS`.
+- [ ] Product catalog → **+ Add product** → `ReviewFlow · Negocio` → **19 €** → Recurring / every 1 month → copia el `price_…` → `STRIPE_PRICE_NEGOCIO`.
+- [ ] Idem → `ReviewFlow · Negocio Plus` → **39 €** → `STRIPE_PRICE_NEGOCIO_PLUS`.
+- [ ] Idem → `ReviewFlow · Tiendas` → **49 €** → `STRIPE_PRICE_TIENDAS`.
+- [ ] Idem → `ReviewFlow · Tiendas Plus` → **89 €** → `STRIPE_PRICE_TIENDAS_PLUS`.
 - [ ] Recargas (pago único, opcionales pero recomendadas; si las omites, el checkout usa los
   importes del código automáticamente):
 
@@ -322,7 +325,7 @@ estructuradas, no asesoramiento jurídico**. Antes de vender:
 ## 12. Soporte y operación del día a día
 
 - [ ] **Canal de soporte**: email (`soporte@`) como mínimo; decide horario y **SLA público**
-  (p. ej. «24 h laborables», que es lo que promete `/contacto`). El plan Business promete
+  (p. ej. «24 h laborables», que es lo que promete `/contacto`). Solo Tiendas Plus promete
   soporte **prioritario**: define qué significa (p. ej. «mismo día laborable»).
 - [ ] **Plantillas de respuesta** (guárdalas en tu gestor): bienvenida, prueba por caducar
   (día 4), impago (día 1 y día 7), disputa Stripe, «he perdido opiniones» (purga del tope),
@@ -352,15 +355,16 @@ Hazlo en este orden. **No abras el registro público con ninguna casilla en rojo
 - [ ] `/admin` sin banner de demo; pestaña *Sistema* con planes, recargas e integraciones en «listo».
 
 ### B. End-to-end en Stripe TEST (30 min, con `4242…` y `4000 0000 0000 0341`)
-- [ ] Registro → `/bienvenido` → **solo 2 planes** (Pro/Business), ambos con 7 días de prueba.
-- [ ] Alta Pro con trial → empresa auto-creada, estado `trialing`, acceso al panel.
+- [ ] Registro → `/bienvenido` → **4 planes en 2 familias** (Negocio 19 · Plus 39 · Tiendas 49 · Tiendas Plus 89),
+      todos con 7 días de prueba.
+- [ ] Alta Negocio con trial → empresa auto-creada, estado `trialing`, acceso al panel.
 - [ ] Conectar Google o pegar Place ID → sincronizar → generar borrador IA → publicar.
 - [ ] Forzar reseña ≤3★ → cola privada (análisis + mensaje conciliador + nota) y alerta WhatsApp.
 - [ ] Agotar una cuota → `429` + `Retry-After` → comprar recarga → capacidad inmediata.
 - [ ] Impago (`…0341`) → `past_due` → corte del panel + APIs `402` → reintento OK → acceso de vuelta.
 - [ ] Cancelación → `inactive` → corte → datos intactos 30 días → re-alta restaura el plan.
 - [ ] Día-8: trial sin pago → `/bienvenido?reason=trial-ended` y `402 trial_expired` en APIs.
-- [ ] Portal de Stripe: cambio Pro↔Business, cambio de tarjeta, facturas descargables.
+- [ ] Portal de Stripe: cambio de plan (p. ej. Negocio→Tiendas), cambio de tarjeta, facturas descargables.
 
 ### C. Humo en LIVE (10 min, dinero real mínimo)
 - [ ] Repite B.1–B.2 con una tarjeta real (o cupón 100 % un mes): alta → `trialing` → panel.
@@ -403,7 +407,7 @@ Cada cosa que tienes que aportar, con su destino exacto. Úsala como índice.
 | Email super-admin | El tuyo | `SUPERADMIN_EMAILS` |
 | Cuenta Stripe activada + IBAN | stripe.com → Activate account | Panel de Stripe (Live mode) |
 | `sk_live_…` | Stripe → Developers → API keys | `STRIPE_SECRET_KEY` (la publishable ya no se usa) |
-| Precios Pro 29 € y Business 79 € | Stripe → Product catalog | `STRIPE_PRICE_PRO`, `STRIPE_PRICE_BUSINESS` |
+| Precios 19 / 39 / 49 / 89 € (4 planes, 2 familias) | Stripe → Product catalog | `STRIPE_PRICE_NEGOCIO`, `STRIPE_PRICE_NEGOCIO_PLUS`, `STRIPE_PRICE_TIENDAS`, `STRIPE_PRICE_TIENDAS_PLUS` |
 | Precios recargas 9/12/15/6 € (opc.) | Stripe → Product catalog (One-off) | `STRIPE_PRICE_ADDON_{REQUESTS,REVIEWS,AI,SYNCS}` |
 | `whsec_…` del webhook | Stripe → Developers → Webhooks | `STRIPE_WEBHOOK_SECRET` |
 | Datos fiscales + IVA en Stripe | Tu asesoría | Stripe → Settings → Business/Tax |
@@ -435,14 +439,14 @@ Cada cosa que tienes que aportar, con su destino exacto. Úsala como índice.
 | Dominio | ~12 €/año | `.com`/`.es` |
 | Hosting | 0–25 €/mes | VPS ~5 € · Vercel Pro ~20 $ (el Hobby **prohíbe** vender) |
 | Supabase | 0–25 $/mes | **Pro recomendado** en producción (sin pausas + backups) |
-| Stripe | ~1,5 % + 0,25 € por cobro | Sin fijo; Pro 29 € → ~0,69 € comisión |
+| Stripe | ~1,5 % + 0,25 € por cobro | Sin fijo; Negocio 19 € → ~0,54 € comisión |
 | SMTP | 0–9 €/mes | Brevo gratis hasta 300/día |
 | OpenAI | céntimos–pocos €/mes | ~0,0001 $/borrador + budget que tú topas |
 | Google Places | ~0 € | Solo al sincronizar; con alerta de presupuesto |
 | WhatsApp | por conversación/país | Consulta precios Meta por tu país |
 | SerpAPI (TripAdvisor, opc.) | ~50–150 $/mes | Según volumen; alternativa Outscraper por tarea |
 | QStash (cola, opc.) | 0–10 $/mes | Plan gratis generoso; sin ella, todo en línea |
-| **Total orientativo** | **~15–60 €/mes** (hasta ~200 € con TripAdvisor) | Con 2–3 clientes Pro ya cubierto |
+| **Total orientativo** | **~15–60 €/mes** (hasta ~200 € con TripAdvisor) | Con 2–3 clientes de 19–49 € ya cubierto |
 
 ¡A vender! 🚀 Si algo falla en producción, el orden de diagnóstico es:
 `/admin → Logs` → `GET /api/health?mode=ready` → Stripe → Webhooks → esta guía (Bloque 13).

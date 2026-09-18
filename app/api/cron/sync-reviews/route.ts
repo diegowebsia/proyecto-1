@@ -24,14 +24,16 @@ export const maxDuration = 60;
  * Así la petición del planificador termina en segundos y cada proveedor
  * se procesa con reintentos y control de caudal en el worker.
  *
- * Cadencia por plan (sobre `integrations.last_sync_at`):
- *   · business → cada hora · pro → cada 6 horas.
+ * Cadencia por plan (sobre `integrations.last_sync_at`), v3.16.0:
+ *   · negocio → cada 6 h · negocio_plus → cada 3 h
+ *   · tiendas → cada hora · tiendas_plus → cada 30 min (requiere que el
+ *     planificador dispare el cron 2×/hora: ver vercel.json '7,37 * * * *').
  * Google: si hay OAuth se usa Business; si no, Places por `place_id`.
  */
 
 type Provider = 'google' | 'places' | 'trustpilot' | 'tripadvisor';
 
-const CADENCE_MINUTES: Record<PlanId, number> = { business: 60, pro: 360 };
+const CADENCE_MINUTES: Record<PlanId, number> = { negocio: 360, negocio_plus: 180, tiendas: 60, tiendas_plus: 30 };
 
 function isCronAuthorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET ?? '';

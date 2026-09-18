@@ -2,7 +2,7 @@
 
 Dos cosas en un solo documento:
 
-1. **La explicación comercial de los 2 planes de pago** (para que la entiendas tú y se la
+1. **La explicación comercial de los 4 planes de pago** (para que la entiendas tú y se la
    cuentes a un cliente en 30 segundos).
 2. **Cómo montar y probar el proyecto completo sin pagar nada** (~30 minutos).
 
@@ -13,34 +13,35 @@ Dos cosas en un solo documento:
 
 ## 1. Los planes, en lenguaje de cliente 💬
 
-| | 🔵 **Pro** | 🟣 **Business** |
-|---|---|---|
-| **Precio** | 29 €/mes | 79 €/mes |
-| **Ideal para** | Un negocio que recibe opiniones cada semana | Tiendas y cadenas con pedidos y varias sedes |
-| **Pide opiniones** | 500 al mes por email **y WhatsApp** | 2.000 al mes por email y WhatsApp |
-| **Guarda e importa** | 1.000 al mes (máx. 5.000 en total) | 5.000 al mes (máx. 25.000 en total) |
-| **Respuestas con IA** | 300 al mes | 1.500 al mes |
-| **Presupuesto de IA incluido** | 250.000 tokens/mes | 1.200.000 tokens/mes |
-| **Sincronizaciones automáticas** | 120 al mes | 720 al mes |
-| **Sedes** | 3 | 10 |
-| **Emails de solicitud** | ✅ | ✅ |
-| **Google (reseñas + publicar respuestas)** | ✅ | ✅ |
-| **Alertas y peticiones por WhatsApp** | ✅ | ✅ |
-| **Trustpilot** | ✅ | ✅ |
-| **TripAdvisor** | ✅ | ✅ |
-| **Embudo privado `/valorar` (plataformas para todos + ticket privado opcional)** | ✅ | ✅ |
-| **Tienda (Shopify / Woo / TPV) + WhatsApp al entregar** | ❌ | ✅ |
-| **Soporte** | Email | Prioritario |
-| **Prueba** | 7 días gratis con tarjeta | 7 días gratis con tarjeta |
+| | 🔵 **Negocio** | 🔵 **Negocio Plus** | 🟣 **Tiendas** | 🟣 **Tiendas Plus** |
+|---|---|---|---|---|
+| **Precio** | 19 €/mes | 39 €/mes | 49 €/mes | 89 €/mes |
+| **Ideal para** | Bar, clínica, pelu… con opiniones cada semana | Varios locales o mucho volumen sin tienda | Tienda online / dropshipping | Ecommerce multi-marca o con muchos pedidos |
+| **Pide opiniones** | 400 al mes por email **y WhatsApp** | 1.200 al mes | 2.000 al mes | 6.000 al mes |
+| **Guarda e importa** | 800 al mes (máx. 3.000 en total) | 2.500/mes (máx. 10.000) | 5.000/mes (máx. 25.000) | 15.000/mes (máx. 100.000) |
+| **Respuestas con IA** | 200 al mes | 700 al mes | 1.500 al mes | 4.000 al mes |
+| **Presupuesto de IA incluido** | 150.000 tokens/mes | 600.000 tokens/mes | 1.200.000 tokens/mes | 3.000.000 tokens/mes |
+| **Sincronizaciones automáticas** | cada 6 h | cada 3 h | cada hora | cada 30 min |
+| **Sedes** | 1 | 5 | 10 | 30 |
+| **Emails de solicitud** | ✅ | ✅ | ✅ | ✅ |
+| **Google (reseñas + publicar respuestas)** | ✅ | ✅ | ✅ | ✅ |
+| **Alertas y peticiones por WhatsApp** | ✅ | ✅ | ✅ | ✅ |
+| **Trustpilot** | ✅ | ✅ | ✅ | ✅ |
+| **TripAdvisor** | ✅ | ✅ | ✅ | ✅ |
+| **Embudo privado `/valorar` (plataformas para todos + ticket privado opcional)** | ✅ | ✅ | ✅ | ✅ |
+| **Tienda (Shopify / Woo / TPV) + WhatsApp al entregar** | ❌ | ❌ | ✅ | ✅ |
+| **Soporte** | Comunidad | Email | Email | Prioritario |
+| **Prueba** | 7 días gratis con tarjeta | 7 días gratis con tarjeta | 7 días gratis con tarjeta | 7 días gratis con tarjeta |
 
 **Cómo contarlo en una frase:**
-> «Prueba 7 días gratis, sin pagar nada. El plan Pro son 29 € al mes para negocios
-> que reciben opiniones cada semana, con avisos por WhatsApp. Si además tienes tienda
-> online y quieres que pida opiniones sola cuando llega el pedido, Business son 79 €.»
+> «Prueba 7 días gratis, sin pagar nada. Para un bar, una clínica o una peluquería están
+> Negocio (19 €) y Negocio Plus (39 €, con más sedes y cuotas). Y si vendes online, los
+> planes Tiendas (49 € y 89 €) además avisan solos por WhatsApp al entregar cada pedido
+> y te piden la reseña en el momento perfecto.»
 
 **Preguntas que te harán (y respuestas cortas):**
 
-- *«¿Qué es una petición?»* → Cada email o WhatsApp que pides a un cliente. En Pro, 500 al mes; en Business, 2.000.
+- *«¿Qué es una petición?»* → Cada email o WhatsApp que pides a un cliente. Según plan: 400 (Negocio), 1.200 (Negocio Plus), 2.000 (Tiendas) o 6.000 (Tiendas Plus) al mes.
 - *«¿Qué pasa si me quedo sin cuota antes de fin de mes?»* → Nada se rompe: sigues viendo tus opiniones, pero no se envían nuevas. Puedes esperar al día 1 o comprar una recarga puntual (+1.000 peticiones 9 €).
 - *«¿Pierdo mis opiniones si no pago?»* → No. Tu historial se conserva 30 días; al reactivar tu plan recuperas el acceso tal cual.
 - *«¿Puedo cambiar de plan?»* → Sí, desde el botón *Suscripción* (portal de Stripe), cuando quieras y sin llamadas.
@@ -95,10 +96,14 @@ Dos cosas en un solo documento:
 1. [stripe.com](https://stripe.com) → verifica **Test mode: ON**.
 2. **Developers → API keys** → `Secret key` (`sk_test_…`).
 3. **Product catalog → Create product** (precios **mensuales**):
-   - `ReviewFlow Pro` 29 €/mes → copia su **Price ID**.
-   - `ReviewFlow Business` 79 €/mes → copia su **Price ID**.
+   - `ReviewFlow · Negocio` 19 €/mes → copia su **Price ID** (`STRIPE_PRICE_NEGOCIO`).
+   - `ReviewFlow · Negocio Plus` 39 €/mes → `STRIPE_PRICE_NEGOCIO_PLUS`.
+   - `ReviewFlow · Tiendas` 49 €/mes → `STRIPE_PRICE_TIENDAS`.
+   - `ReviewFlow · Tiendas Plus` 89 €/mes → `STRIPE_PRICE_TIENDAS_PLUS`.
+   (Si vienes de v3.15, `STRIPE_PRICE_PRO`/`STRIPE_PRICE_BUSINESS` siguen valiendo como
+   alias de Negocio/Tiendas: no hace falta tocar los Price ID viejos para arrancar.)
 
-   (No hay plan gratuito: los 2 planes se prueban 7 días con tarjeta de test.)
+   (No hay plan gratuito: los 4 planes se prueban 7 días con tarjeta de test.)
 4. Opcional: crea también las 4 recargas de pago único (9 / 12 / 15 / 6 €) si quieres usar Price IDs en lugar de los importes de `lib/plans.ts`.
 5. El webhook lo crearás en el paso 7 (necesitas antes la URL de Vercel).
 
@@ -118,7 +123,7 @@ Dos cosas en un solo documento:
 | `SUPERADMIN_EMAILS` | **Tu email** (acceso al panel interno `/admin`) |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` | Paso 2 |
 | `STRIPE_SECRET_KEY` | `sk_test_…` (paso 3) |
-| `STRIPE_PRICE_PRO` / `STRIPE_PRICE_BUSINESS` | `price_…` (paso 3) |
+| `STRIPE_PRICE_NEGOCIO` / `STRIPE_PRICE_NEGOCIO_PLUS` / `STRIPE_PRICE_TIENDAS` / `STRIPE_PRICE_TIENDAS_PLUS` | `price_…` (paso 4) |
 | `STRIPE_WEBHOOK_SECRET` | Paso 7 (despliega sin él y añádelo después) |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | Paso 5 |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` | Paso 3 (opcional; `gpt-4o-mini`) |
@@ -138,8 +143,8 @@ Dos cosas en un solo documento:
 ## Paso 8 — Prueba el flujo completo E2E (5 min)
 
 1. `npm run verify` y `GET /api/health?mode=live` → `"ok":true`; el readiness requiere Bearer `HEALTHCHECK_SECRET`.
-2. **Regístrate** → en `/bienvenido` verás los 2 planes de pago:
-   - **Pro/Business** → checkout de prueba con `4242 4242 4242 4242` (7 días sin cargo).
+2. **Regístrate** → en `/bienvenido` verás los 4 planes de pago (2 familias):
+   - cualquier plan → checkout de prueba con `4242 4242 4242 4242` (7 días sin cargo).
 3. En el panel: ajusta el tono de la IA, genera un borrador y publícalo. La respuesta trae los
    **tokens y el coste reales** de esa llamada; verás la barra *Presupuesto de IA* actualizarse.
 4. Comprueba la cuota y las recargas en *Facturación y cuota*.
@@ -162,13 +167,13 @@ Dos cosas en un solo documento:
 | "La IA responde genérico" | Sin `OPENAI_API_KEY` o sin crédito: la app usa el fallback local (mira `ai_interactions.ok`) |
 | "Se agotó mi IA antes de fin de mes" | Es el presupuesto de tokens del plan; compra la recarga `+500 respuestas IA` (15 €) o sube de plan |
 | Google/WhatsApp dan error | Normal en gratis: esas claves son opcionales (GUIA_PASOS_MANUALES §6) |
-| «Se han archivado opiniones» | Es el tope de guardadas de tu plan (5.000 en Pro): compra +2.000 opiniones o sube a Business |
+| «Se han archivado opiniones» | Es el tope de guardadas de tu plan (3.000 en Negocio · 100.000 en Tiendas Plus): compra +2.000 opiniones o sube de plan |
 
 ## Resumen de lo que has montado gratis
 
 | Pieza | Estado en modo gratis |
 |---|---|
-| 2 planes de pago + cuotas + recargas | ✅ idéntico a producción (Stripe test) |
+| 4 planes de pago + cuotas + recargas | ✅ idéntico a producción (Stripe test) |
 | IA medida por tokens | ✅ presupuesto real por plan (con clave de OpenAI o con plantilla local) |
 | Webhook de Stripe | ✅ mismo endpoint firmado que en live (`npm run verify` lo comprueba) |
 | PostgreSQL + RLS + índices | ✅ Supabase Free (500 MB) con migración 3.13.0 |

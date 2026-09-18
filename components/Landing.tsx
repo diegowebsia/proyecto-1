@@ -102,8 +102,8 @@ const faqs = [
     a: `Sí. Todos los planes de pago incluyen ${TRIAL_DAYS} días de prueba gratis: conectas la tarjeta vía Stripe y usas todo sin pagar. Si cancelas antes del día ${TRIAL_DAYS + 1}, no se te cobra nada.`,
   },
   {
-    q: `¿Cómo funciona la prueba de ${TRIAL_DAYS} días de Pro y Business?`,
-    a: `Al elegir Pro o Business conectas la tarjeta vía Stripe y durante ${TRIAL_DAYS} días usas todo sin pagar. Si cancelas antes del día ${TRIAL_DAYS + 1}, no se te cobra nada. Sin suscripción activa no hay acceso a la plataforma.`,
+    q: `¿Cómo funciona la prueba de ${TRIAL_DAYS} días?`,
+    a: `Vale para los 4 planes: al elegir el tuyo conectas la tarjeta vía Stripe y durante ${TRIAL_DAYS} días usas todo sin pagar. Si cancelas antes del día ${TRIAL_DAYS + 1}, no se te cobra nada. Sin suscripción activa no hay acceso a la plataforma.`,
   },
   {
     q: '¿Qué límites tengo cada mes?',
@@ -234,16 +234,16 @@ export function Landing() {
             <span>¿Prefieres tocarlo antes?</span>
             <span className="flex flex-wrap items-center justify-center gap-2">
               <Link
-                href="/demo/pro"
+                href="/demo/negocio"
                 className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/40 bg-brand-500/10 px-3.5 py-1.5 font-semibold text-brand-200 transition-all duration-200 hover:border-brand-400/70 hover:text-white hover:shadow-[0_6px_20px_-8px_rgba(59,118,240,0.8)]"
               >
-                <Eye size={14} /> Ver la demo del panel · Pro
+                <Eye size={14} /> Ver la demo del panel · Negocio
               </Link>
               <Link
-                href="/demo/business"
+                href="/demo/tiendas"
                 className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-500/10 px-3.5 py-1.5 font-semibold text-violet-200 transition-all duration-200 hover:border-violet-400/70 hover:text-white hover:shadow-[0_6px_20px_-8px_rgba(139,92,246,0.8)]"
               >
-                <Eye size={14} /> Business
+                <Eye size={14} /> · Tiendas
               </Link>
             </span>
             <span className="text-xs text-ink-500">sin registro, datos simulados</span>
@@ -514,15 +514,17 @@ export function Landing() {
               Planes de pago con {TRIAL_DAYS} días de prueba gratis.
             </h2>
             <p className="mt-3 text-ink-300">
-              Dos planes claros, sin letra pequeña: Pro (29&nbsp;€) y Business (79&nbsp;€), ambos
-              con {TRIAL_DAYS} días de prueba gratis con tarjeta. Sin suscripción activa no hay
-              acceso. Cambia o cancela cuando quieras desde el panel.
+              Cuatro planes, dos familias y cero letra pequeña: <strong>Negocio</strong> (19&nbsp;€
+              y 39&nbsp;€) para locales y servicios, y <strong>Tiendas</strong> (49&nbsp;€ y
+              89&nbsp;€) para ecommerce y dropshipping, con tienda conectada y WhatsApp al
+              entregar. Todos con {TRIAL_DAYS} días de prueba gratis con tarjeta; sin suscripción
+              activa no hay acceso. Cambia o cancela cuando quieras desde el panel.
             </p>
           </Reveal>
 
           <div className="mx-auto mt-10 grid max-w-4xl gap-5 lg:grid-cols-2">
             {PLAN_CATALOG.map((p, i) => {
-              const featured = p.id === 'pro';
+              const featured = p.id === 'negocio';
               return (
                 <Reveal key={p.id} delay={i * 0.1} className="h-full">
                   <div
@@ -627,11 +629,11 @@ export function Landing() {
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <Link href="/demo/pro" className="btn-secondary btn-sm">
-                    Demo Plan Pro
+                  <Link href="/demo/negocio" className="btn-secondary btn-sm">
+                    Demo plan Negocio
                   </Link>
-                  <Link href="/demo/business" className="btn-primary btn-sm">
-                    Demo Plan Business
+                  <Link href="/demo/tiendas" className="btn-primary btn-sm">
+                    Demo plan Tiendas
                   </Link>
                 </div>
               </div>
@@ -778,22 +780,32 @@ export function Landing() {
 /* ------------------------------------------------------------------ */
 
 const PLAN_DETAIL: Record<string, Array<[string, string]>> = {
-  pro: [
-    ['Captura de opiniones', 'Importa tus reseñas de Google (conexión de 1 clic), de tu ficha en Maps y de Trustpilot (la activamos nosotros por ti) a una sola bandeja.'],
+  negocio: [
+    ['Todo tu reputación en una bandeja', `Importa reseñas de Google (conexión de 1 clic), tu ficha en Maps, TripAdvisor y Trustpilot (lo activamos nosotros por ti). ${PLANS.negocio.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones/mes.`],
+    ['IA que habla como tu local', 'Lee la reseña, tu tono y TU sector (un bar no responde como una clínica) y escribe el borrador en segundos. Nada se publica sin tu visto bueno.'],
     ['Filtro privado con IA', 'Las malas experiencias (≤3★) se marcan para gestión privada: inspección de la queja, mensaje conciliador interno y alerta al instante.'],
-    ['Respuestas publicadas en Google', 'Borradores con tu tono en segundos; publicas en un clic y la respuesta se escribe directamente en la plataforma.'],
-    ['Enlaces de Maps', 'Pega el enlace de tu ficha de Google Maps y genera tu «déjanos una reseña» para el mostrador, el ticket o WhatsApp.'],
-    ['Cuota clara', `${PLANS.pro.limits.requestsPerMonth} peticiones de opiniones y ${PLANS.pro.limits.reviewsPerMonth} opiniones al mes, ${PLANS.pro.limits.aiRepliesPerMonth} respuestas IA y ${PLANS.pro.limits.syncsPerMonth} sincronizaciones automáticas (cada 6 h).`],
-    ['Peticiones por email y WhatsApp', 'Envía tu enlace de Google a los clientes por email o WhatsApp y mide cada petición.'],
-    ['Sincronización y almacenamiento', `Sincronización automática cada 6 h y hasta ${PLANS.pro.limits.reviewsStored.toLocaleString('es-ES')} opiniones retenidas (${(PLANS.pro.limits.storageMb / 1024).toFixed(0)} GB).`],
+    ['Enlaces de valorar', 'Pega el enlace de tu ficha de Google Maps y genera tu «déjanos una reseña» para el mostrador, el ticket o WhatsApp.'],
+    ['Cuota del plan', `${PLANS.negocio.limits.requestsPerMonth} peticiones de opiniones, ${PLANS.negocio.limits.aiRepliesPerMonth} respuestas IA y ${PLANS.negocio.limits.syncsPerMonth} sincronizaciones al mes (cada 6 h); ${PLANS.negocio.limits.reviewsStored.toLocaleString('es-ES')} opiniones guardadas.`],
   ],
-  business: [
-    ['Conexión con tu tienda', 'Shopify, WooCommerce o cualquier TPV: lo conectamos nosotros en 1 clic y detectamos cada pedido entregado automáticamente.'],
-    ['WhatsApp al entregar', 'Cuando un pedido pasa a «Entregado/Completado», el cliente recibe un WhatsApp pidiendo su valoración con tu enlace de Google.'],
-    ['Cuota ampliada', `${PLANS.business.limits.requestsPerMonth} peticiones de opiniones, ${PLANS.business.limits.reviewsPerMonth} opiniones y ${PLANS.business.limits.aiRepliesPerMonth} respuestas IA al mes, con sincronización cada hora.`],
-    ['Almacenamiento de empresa', `Hasta ${PLANS.business.limits.reviewsStored.toLocaleString('es-ES')} opiniones retenidas (${(PLANS.business.limits.storageMb / 1024).toFixed(0)} GB) y ${PLANS.business.limits.integrations} conexiones simultáneas.`],
-    ['Integración a medida', '¿Tienes un sistema propio (TPV, ERP, app)? Nuestro equipo te acompaña en la conexión sin que escribas una línea de configuración.'],
-    ['Soporte prioritario', 'Respuesta el mismo día laborable y ayuda con la conexión de tu tienda y tus plantillas de WhatsApp.'],
+  negocio_plus: [
+    ['Lo mismo, ×3', `${PLANS.negocio_plus.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones, ${PLANS.negocio_plus.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones y ${PLANS.negocio_plus.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA al mes, con sincronización cada 3 h.`],
+    ['Varias sedes', `Hasta ${PLANS.negocio_plus.limits.locations} locales con su bandeja, embudo y cuotas compartidas. Ideal para cadenas de bares, clínicas con varias consultas o franquicias.`],
+    ['Más histórico', `${PLANS.negocio_plus.limits.reviewsStored.toLocaleString('es-ES')} opiniones retenidas y ${PLANS.negocio_plus.limits.logRetentionDays} días de auditoría.`],
+    ['Soporte por email', 'Y toda la ayuda contextual «?» integrada en el panel, en lenguaje de calle.'],
+  ],
+  tiendas: [
+    ['Tu tienda avisándote sola', 'Conecta Shopify, WooCommerce o tu TPV pegando un solo enlace en tu panel de tienda — nosotros montamos el webhook y detectamos cada pedido entregado.'],
+    ['WhatsApp al entregar', 'Cuando un pedido pasa a «Entregado/Completado», el cliente recibe un WhatsApp pidiendo su valoración con tu enlace de Google. Puro oro para dropshipping.'],
+    ['Cuota de volumen', `${PLANS.tiendas.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones, ${PLANS.tiendas.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones y ${PLANS.tiendas.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA al mes, con sincronización cada hora.`],
+    ['10 sedes y multi-marca', `Hasta ${PLANS.tiendas.limits.locations} tiendas conectadas, ${PLANS.tiendas.limits.integrations} integraciones simultáneas y ${PLANS.tiendas.limits.reviewsStored.toLocaleString('es-ES')} opiniones guardadas (${(PLANS.tiendas.limits.storageMb / 1024).toFixed(0)} GB).`],
+    ['Reseñas de plataformas', 'Google, TripAdvisor y Trustpilot centralizados, con respuesta publicada en Google en un clic.'],
+  ],
+  tiendas_plus: [
+    ['Volumen sin frenos', `${PLANS.tiendas_plus.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones, ${PLANS.tiendas_plus.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones importadas y ${PLANS.tiendas_plus.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA al mes.`],
+    ['Sincronización cada 30 min', `${PLANS.tiendas_plus.limits.syncsPerMonth.toLocaleString('es-ES')} sincronizaciones automáticas: tus opiniones y entregas, siempre frescas.`],
+    ['Catálogo grande', `${PLANS.tiendas_plus.limits.locations} sedes, ${PLANS.tiendas_plus.limits.integrations} integraciones, ${PLANS.tiendas_plus.limits.reviewsStored.toLocaleString('es-ES')} opiniones retenidas (${(PLANS.tiendas_plus.limits.storageMb / 1024).toFixed(0)} GB) y ${PLANS.tiendas_plus.limits.logRetentionDays} días de auditoría.`],
+    ['API pública de ingesta', 'Envía opiniones desde tu app, tu CRM o tu sistema logístico con la clave de tu empresa (la gestionamos nosotros por ti).'],
+    ['Soporte prioritario', 'Respuesta el mismo día laborable y acompañamiento en la conexión de tu tienda y tus plantillas de WhatsApp.'],
   ],
 };
 

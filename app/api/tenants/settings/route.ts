@@ -9,7 +9,7 @@ const emptyToUndef = (v: string | undefined) => (v === undefined ? undefined : v
 const Body = z.object({
   tenantId: z.string().min(1),
   tone: z.enum(['profesional', 'cercano', 'formal']).optional(),
-  place_id: z.string().max(120).optional(),
+  place_id: z.string().max(400).optional(), // admite el enlace de Maps crudo: se normaliza abajo
   whatsapp_to: z.string().max(20).optional(),
   tripadvisor_url: z.string().max(300).optional(),
   trustpilot_url: z.string().max(300).optional(),

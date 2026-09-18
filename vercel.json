@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/sync-reviews",
-      "schedule": "7 * * * *"
+      "schedule": "7,37 * * * *"
     }
   ]
 }

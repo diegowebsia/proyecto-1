@@ -41,8 +41,12 @@ export const env = {
   // portal y recargas) se crea en el servidor; no hay campos de tarjeta en el front.
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   // Planes de pago (todos pasan por Stripe; no hay plan gratuito).
-  stripePricePro: process.env.STRIPE_PRICE_PRO ?? '',
-  stripePriceBusiness: process.env.STRIPE_PRICE_BUSINESS ?? '',
+  // 4 planes v3.16.0. `STRIPE_PRICE_PRO`/`STRIPE_PRICE_BUSINESS` siguen
+  // valiendo como alias legacy de `NEGOCIO`/`TIENDAS` (despliegues antiguos).
+  stripePriceNegocio: process.env.STRIPE_PRICE_NEGOCIO || process.env.STRIPE_PRICE_PRO || '',
+  stripePriceNegocioPlus: process.env.STRIPE_PRICE_NEGOCIO_PLUS ?? '',
+  stripePriceTiendas: process.env.STRIPE_PRICE_TIENDAS || process.env.STRIPE_PRICE_BUSINESS || '',
+  stripePriceTiendasPlus: process.env.STRIPE_PRICE_TIENDAS_PLUS ?? '',
   // Ampliaciones puntuales (pago único). Si no se definen, el checkout se crea
   // con `price_data` inline usando los importes de lib/plans.ts.
   stripePriceAddonRequests: process.env.STRIPE_PRICE_ADDON_REQUESTS ?? '',
@@ -103,8 +107,10 @@ export function envStatus(): Record<string, boolean> {
     SUPERADMIN_EMAILS: isSuperAdminConfigured,
     STRIPE_SECRET_KEY: isStripeConfigured,
     STRIPE_WEBHOOK_SECRET: isStripeWebhookConfigured,
-    STRIPE_PRICE_PRO: Boolean(env.stripePricePro),
-    STRIPE_PRICE_BUSINESS: Boolean(env.stripePriceBusiness),
+    STRIPE_PRICE_NEGOCIO: Boolean(env.stripePriceNegocio),
+    STRIPE_PRICE_NEGOCIO_PLUS: Boolean(env.stripePriceNegocioPlus),
+    STRIPE_PRICE_TIENDAS: Boolean(env.stripePriceTiendas),
+    STRIPE_PRICE_TIENDAS_PLUS: Boolean(env.stripePriceTiendasPlus),
     STRIPE_PRICE_ADDON_REQUESTS: Boolean(env.stripePriceAddonRequests),
     STRIPE_PRICE_ADDON_REVIEWS: Boolean(env.stripePriceAddonReviews),
     STRIPE_PRICE_ADDON_AI: Boolean(env.stripePriceAddonAi),

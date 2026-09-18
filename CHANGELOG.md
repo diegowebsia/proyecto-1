@@ -1,6 +1,59 @@
 # Changelog — ReviewFlow AI
 
 
+## v3.16.0 (2026-09-18) — Catálogo en 2 familias × 2 niveles, checkup de alta y medidores corregidos
+
+- **Nuevos planes (fuente única `lib/plans.ts`)**: dos familias pensas para dos tipos de cliente
+  — **Local**: `Negocio` (19 €/mes) y `Negocio Plus` (39 €/mes) para bares, clínicas, talleres y
+  servicios sin tienda; **Comercio**: `Tiendas` (49 €/mes) y `Tiendas Plus` (89 €/mes) para
+  ecommerce y dropshipping. Cada nivel superior multiplica cuotas (peticiones 400→1.200→2.000→
+  6.000/mes; opiniones, IA, tokens y sincronizaciones en la misma proporción), sedes
+  (1 · 5 · 10 · 30) y topes de BD (3k→100k opiniones guardadas, 1→25 GB). Las funciones de
+  tienda (Shopify/Woo/TPV + **WhatsApp al entregar**) son exclusivas de la familia Tiendas: el
+  gate pasa de mirar el id del plan a `features.storeIntegration` (403 `plan_locked` con
+  `upgradePlan` sugerido).
+- **Alias legacy vivos**: `pro`/`free`/`trial` → Negocio y `business`/`completo`/`ecommerce` →
+  Tiendas a través de `resolvePlan`; `nextPlanFor()` alimenta el upsell de Facturación. Stripe:
+  nuevos `STRIPE_PRICE_NEGOCIO[_PLUS]` y `STRIPE_PRICE_TIENDAS[_PLUS]` (los `*_PRO`/`*_BUSINESS`
+  viejos siguen valiendo como alias). `STRIPE_PLANS` y la landing derivan ahora del catálogo.
+- **Onboarding que autoconfigura (checkup de alta)**: el wizard pide ahora los **enlaces reales**
+  —ficha de Google Maps (se normaliza al `place_id` internamente), TripAdvisor y Trustpilot—
+  y, si contratas un plan Tiendas, **plataforma + dominio de la tienda** para dejar el webhook
+  de «pedido entregado» en cola asistida desde el primer minuto. Cero claves técnicas: el
+  cliente pega enlaces, nosotros montamos. `OnboardingStrip` añade el paso «Conecta tu tienda»
+  solo en las familias Tiendas.
+- **Demos por plan renacidas**: `/demo/negocio`, `/demo/negocio_plus`, `/demo/tiendas` y
+  `/demo/tiendas_plus` — cada una con su persona (Bar Lumen, Clínica Sonrisa, Aurora Home,
+  MultiDeco), cuotas y medidores coherentes con su plan; `/demo/pro` y `/demo/business`
+  redirigen al equivalente. Toggle de 4 píldoras en la franja ámbar.
+- **Cadencia de sincronización por plan**: negocio 6 h · negocio_plus 3 h · tiendas 1 h ·
+  tiendas_plus **30 min** (`CADENCE_MINUTES`); `vercel.json` dispara el cron a los minutos 7 y 37
+  para desbloquear el nivel más rápido (los planes lentos se auto-filtran).
+- **Fix del «cilindro verde» roto**: `.meter` era un `<span>` en línea que ignoraba
+  `h-2 w-full` (la barra de «Peticiones del mes» desbordaba asimétrica). La clase ahora fuerza
+  `block` en `app/globals.css`, sanando también la barra de planes del `/admin`.
+- **DB**: constraint `tenants_plan_check` a los 4 ids nuevos con normalización automática de
+  filas antiguas (`supabase/migration_3_16_0.sql`, idempotente) y test que vigila que schema y
+  catálogo no se desincronicen.
+- **Web y guías completas**: landing (grid 2×2 de planes, FAQ, enlaces de demo), `/bienvenido`
+  (4 tarjetas con etiqueta de familia), contacto/sobre-nosotros/términos leídos del catálogo,
+  y README + GUIA_GRATIS/ADMIN/COMERCIALIZACION/DESPLIEGUE/AUTOMATIZACION + PASOS_MANUALES
+  re-escritos a 4 planes (precios, límites, env vars y verificación E2E).
+
+## v3.15.0 (2026-09-18) — Cristal en todas las barras, IA sectorial y coste oculto al cliente
+
+- **Glassmorphism + parallax compartidos**: hook único `useHeaderGlass` para landing, legales,
+  panel, bienvenida y admin; altura/sombra/blur que responden al scroll.
+- **IA que escribe según el sector del negocio** (`business_type` en settings → persona del
+  prompt) y **solo con los canales de contacto del cliente** (email/teléfono/web propios; jamás
+  menciona a ReviewFlow ni a terceros).
+- **El coste de la IA desaparece del lado cliente**: ni «coste estimado», ni modelo, ni dólares
+  en paneles ni en respuestas de API (contabilidad íntegra reservada a `/admin`).
+- **Enlaces de demo visibles para venta**: `/demo/pro` y `/demo/business` desde header, footer
+  y hero de la landing.
+- **Fixes de layout**: `overflow-clip` en raíces (el `sticky` volvía a funcionar), scroll suave
+  con `scroll-behavior`, y barras de herramientas sin desbordes en móvil.
+
 ## v3.14.0 (2026-09-18) — Panel sin fricción técnica, ayuda contextual y demo pública
 
 - **Ayuda contextual en todos los módulos**: cada panel (`ReviewCard`, `BillingPanel`,

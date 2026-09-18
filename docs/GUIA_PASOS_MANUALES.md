@@ -54,8 +54,10 @@ cp .env.example .env
 | 7 | `STRIPE_SECRET_KEY` | Clave secreta de Stripe (`sk_test_…` / `sk_live_…`) | Stripe → **Developers → API keys** → Secret key | ✅ |
 | 8 | — | Clave publicable de Stripe **retirada** (v3.14.0): el cobro ocurre en el servidor y no hay campos de tarjeta en el navegador; si tu `.env` antiguo la tiene, bórrala | — | — |
 | 9 | `STRIPE_WEBHOOK_SECRET` | Secreto del endpoint de webhook (`whsec_…`) | Stripe → **Developers → Webhooks** → tu endpoint → Signing secret | ✅ |
-| 10 | `STRIPE_PRICE_PRO` | Price ID del plan **Pro** 29 €/mes | Stripe → **Product catalog** → producto → precio mensual → `price_…` | ✅ |
-| 11 | `STRIPE_PRICE_BUSINESS` | Price ID del plan **Business** 79 €/mes | Idem | ✅ |
+| 10 | `STRIPE_PRICE_NEGOCIO` | Price ID del plan **Negocio** 19 €/mes (alias legacy `STRIPE_PRICE_PRO`) | Stripe → **Product catalog** → producto → precio mensual → `price_…` | ✅ |
+| 10b | `STRIPE_PRICE_NEGOCIO_PLUS` | Price ID del plan **Negocio Plus** 39 €/mes | Idem | ✅ |
+| 10c | `STRIPE_PRICE_TIENDAS` | Price ID del plan **Tiendas** 49 €/mes (alias legacy `STRIPE_PRICE_BUSINESS`) | Idem | ✅ |
+| 10d | `STRIPE_PRICE_TIENDAS_PLUS` | Price ID del plan **Tiendas Plus** 89 €/mes | Idem | ✅ |
 | 12 | `STRIPE_PRICE_ADDON_REQUESTS` | Price ID de la recarga **+1.000 peticiones** (9 €) | Idem (ver [sección 5](#5-stripe-productos-add-on-ampliadores-de-cuota)) | ⭕ |
 | 13 | `STRIPE_PRICE_ADDON_REVIEWS` | Price ID de la recarga **+2.000 opiniones** (12 €) | Idem | ⭕ |
 | 14 | `STRIPE_PRICE_ADDON_AI` | Price ID de la recarga **+500 respuestas IA** (15 €) | Idem | ⭕ |
@@ -117,8 +119,10 @@ DATABASE_POOL_MAX=5
 # ---------- Stripe ----------
 STRIPE_SECRET_KEY=sk_live_51Nx...
 STRIPE_WEBHOOK_SECRET=whsec_8f3a...
-STRIPE_PRICE_PRO=price_1NxAbC...
-STRIPE_PRICE_BUSINESS=price_1NxDeF...
+STRIPE_PRICE_NEGOCIO=price_1NxAaA...
+STRIPE_PRICE_NEGOCIO_PLUS=price_1NxBbB...
+STRIPE_PRICE_TIENDAS=price_1NxAbC...
+STRIPE_PRICE_TIENDAS_PLUS=price_1NxDeF...
 STRIPE_PRICE_ADDON_REQUESTS=price_1NxGhI...
 STRIPE_PRICE_ADDON_REVIEWS=price_1NxJkL...
 STRIPE_PRICE_ADDON_AI=price_1NxMnO...
@@ -254,19 +258,22 @@ ya no se muestra ni se copia desde el panel del cliente.
 
 ## 3. Stripe: planes base y webhook
 
-### 3.1 Crear los dos planes de pago
+### 3.1 Crear los cuatro planes de pago (2 familias)
 
 Stripe Dashboard → **Product catalog → + Add product** (repite para cada plan):
 
 | Plan | Nombre del producto | Precio | Recurrencia | Trial |
 |---|---|---|---|---|
-| Pro | `ReviewFlow · Pro` | `29` EUR | Mensual (every 1 month) | 7 días |
-| Business | `ReviewFlow · Business` | `79` EUR | Mensual (every 1 month) | 7 días |
+| Negocio | `ReviewFlow · Negocio` | `19` EUR | Mensual (every 1 month) | 7 días |
+| Negocio Plus | `ReviewFlow · Negocio Plus` | `39` EUR | Mensual (every 1 month) | 7 días |
+| Tiendas | `ReviewFlow · Tiendas` | `49` EUR | Mensual (every 1 month) | 7 días |
+| Tiendas Plus | `ReviewFlow · Tiendas Plus` | `89` EUR | Mensual (every 1 month) | 7 días |
 
-- **No hay plan gratuito**: los 2 planes pasan por Stripe con prueba de 7 días.
+- **No hay plan gratuito**: los 4 planes pasan por Stripe con prueba de 7 días.
 - El **trial de 7 días lo aplica el código** (`trial_period_days: 7` en `/api/stripe/checkout`, con tarjeta obligatoria y pausa si falla el cobro del día 8);
   no hace falta configurarlo en el producto, aunque puedes definirlo también en Stripe.
-- Copia el **API ID** de cada precio (`price_…`) → `STRIPE_PRICE_PRO` y `STRIPE_PRICE_BUSINESS`.
+- Copia el **API ID** de cada precio (`price_…`) → `STRIPE_PRICE_NEGOCIO`, `STRIPE_PRICE_NEGOCIO_PLUS`,
+  `STRIPE_PRICE_TIENDAS` y `STRIPE_PRICE_TIENDAS_PLUS`.
 - Los Price ID de **test no valen en live**: al pasar a producción, recrea productos y precios y
   actualiza las variables.
 
@@ -516,8 +523,9 @@ legales (`/aviso-legal`, `/privacidad`, `/terminos`, `/cookies`).
 La web **no** incluye testimonios inventados (prohibido por la Dir. (UE) 2019/2161 «Ómnibus»).
 
 - [ ] Cuando tengas clientes reales: pide permiso escrito para nombre/logo y añádelos.
-- [ ] Si cambias los 29 €/79 € o los importes de las recargas (9/12/15/6 €), actualízalos **a la vez** en
-      Stripe y en `lib/plans.ts` (`/terminos` ya lee precios y límites del código automáticamente).
+- [ ] Si cambias los 19/39/49/89 € o los importes de las recargas (9/12/15/6 €), actualízalos **a la vez** en
+      Stripe y en `lib/plans.ts` (landing, `/terminos`, `/admin`, `/bienvenido` y demos ya leen precios
+      y límites del catálogo automáticamente — una sola fuente de verdad).
 
 ---
 
@@ -536,11 +544,14 @@ La web **no** incluye testimonios inventados (prohibido por la Dir. (UE) 2019/21
    Con sesión super-admin, consulta el detalle del pool en `GET /api/admin/db`.
    Atajo: `npm run verify` lo revisa todo, incluida la firma del webhook de Stripe.
 3. Panel interno (`/admin`, privado) → **sin** banner de modo demo; pestaña *Sistema* con todas
-   las integraciones en «listo», incluidos los Price ID de Pro/Business y las 4 recargas.
-4. **Flujo de alta (Pro/Business, único que existe)**: registro → `/bienvenido` → solo 2 planes,
-   ambos con 7 días de prueba → elige Pro → Checkout con `4242 4242 4242 4242` → vuelta a
-   la app → empresa **auto-creada** y estado `trialing`. El alta sin tarjeta ya no existe
-   (`POST /api/tenants/start` responde 402).
+   las integraciones en «listo», incluidos los 4 Price ID de plan y las 4 recargas.
+4. **Flujo de alta (4 planes en 2 familias, único modelo que existe)**: registro → `/bienvenido` →
+   Negocio / Negocio Plus / Tiendas / Tiendas Plus, todos con 7 días de prueba → elige Negocio →
+   Checkout con `4242 4242 4242 4242` → vuelta a la app → empresa **auto-creada** y estado
+   `trialing`. El alta sin tarjeta ya no existe (`POST /api/tenants/start` responde 402).
+   **Checkup del wizard (v3.16.0)**: en el paso «Fuentes» pega enlaces de Google Maps/TripAdvisor y,
+   si contratas Tiendas, la plataforma + dominio de tu tienda → verifica que se autoconfiguran
+   (place_id normalizado, tienda en cola asistida) sin pedir ninguna clave técnica.
 5. **Flujo de reseñas**: conecta Google o pega un Place ID → **Sincronizar** → reseñas reales en
    la bandeja → *Generar respuesta con IA* → editar → **Publicar**.
 6. **Flujo de triaje**: fuerza una reseña de ≤3★ → aparece en la cola privada con análisis de la
@@ -565,8 +576,8 @@ La web **no** incluye testimonios inventados (prohibido por la Dir. (UE) 2019/21
 | Síntoma | Causa habitual | Solución |
 |---|---|---|
 | `429 Too Many Requests` al sincronizar o generar IA | Cuota del ciclo agotada | Compra un add-on (`/dashboard?tab=facturacion`) o espera al siguiente ciclo. La respuesta incluye `Retry-After` y `X-RateLimit-*`. |
-| `402 Payment Required` | Sin suscripción activa o prueba de 7 días caducada | Contrata/reactiva un plan de pago en `/bienvenido` (Pro o Business, ambos con 7 días de prueba). |
-| `403 Forbidden` en una integración | La integración no pertenece a tu plan (p. ej. la tienda requiere Business) | Revisa el plan en *Facturación* y la tabla de features de `lib/plans.ts`; si aplica, sube de plan. |
+| `402 Payment Required` | Sin suscripción activa o prueba de 7 días caducada | Contrata/reactiva un plan de pago en `/bienvenido` (los 4 planes llevan 7 días de prueba). |
+| `403 Forbidden` en una integración | La integración no pertenece a tu plan (p. ej. la tienda requiere Tiendas/Tiendas Plus) | Revisa el plan en *Facturación* y la tabla de features de `lib/plans.ts`; si aplica, sube de plan. |
 | `507 Insufficient Storage` | La empresa alcanzó el tope de opiniones, conexiones o almacenamiento de su plan | Es la protección de la BD: compra la recarga de opiniones, desconecta una integración o sube de plan. La purga de lo más antiguo es automática. |
 | La recarga se cobra pero no sube la cuota | Webhook no llega o `STRIPE_WEBHOOK_SECRET` incorrecto | Revisa Stripe → Webhooks → intentos (error de firma = 400). En local usa `stripe listen --forward-to`. |
 | «Se han archivado opiniones» | El plan llegó a su tope de filas (`reviewsStored`) y la purga borró las más antiguas | Es el comportamiento documentado en `GUIA_ADMIN.md` §3: ofrece recarga de opiniones o plan superior. |

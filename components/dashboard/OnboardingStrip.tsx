@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bot, Check, Link2, PartyPopper, Plug, Sparkles, X } from 'lucide-react';
+import { Bot, Check, Link2, PartyPopper, Plug, Sparkles, Store, X } from 'lucide-react';
 import { EASE } from '@/components/Motion';
 import { cn } from '@/lib/utils';
 import type { TenantInfo } from '@/components/dashboard/types';
+import { planHasFeature } from '@/lib/plans';
 
 /**
  * Panel de configuración guiada (v3.14.0 — patrón Podium/NiceJob).
@@ -14,7 +15,7 @@ import type { TenantInfo } from '@/components/dashboard/types';
  * falta: conectar una fuente, enlazar su ficha y responder la primera reseña
  * con IA. Desaparece al completar los pasos (o si lo cierra) — sin ruido.
  */
-export type OnboardingAction = 'connections' | 'funnel' | 'replies';
+export type OnboardingAction = 'connections' | 'funnel' | 'replies' | 'store';
 
 export function OnboardingStrip({
   tenant,
@@ -33,6 +34,10 @@ export function OnboardingStrip({
 
   const connected = tenant.integrations.some((i) => i.status === 'connected' || i.status === 'pending_setup');
   const hasLink = Boolean(tenant.settings.place_id) || preview;
+  const commerce = planHasFeature(tenant.plan, 'storeIntegration');
+  const storeConnected = tenant.integrations.some(
+    (i) => (i.provider === 'shopify' || i.provider === 'woocommerce' || i.provider === 'store') && i.status === 'connected',
+  );
   const steps = useMemo(
     () => [
       {
@@ -62,8 +67,23 @@ export function OnboardingStrip({
         action: 'replies' as const,
         cta: 'Ir a la bandeja',
       },
+      // v3.16.0: solo en planes con tienda (familias Tiendas) — es lo que activa
+      // el WhatsApp automático al entregar, así que el alta guiada lo pide.
+      ...(commerce
+        ? [
+            {
+              id: 'store',
+              done: storeConnected || Boolean(previewDone.store),
+              label: 'Conecta tu tienda',
+              desc: 'Con un clic montamos el webhook y el WhatsApp al entregar',
+              icon: Store,
+              action: 'store' as const,
+              cta: 'Conectar tienda',
+            },
+          ]
+        : []),
     ],
-    [connected, hasLink, reviewedAny, previewDone],
+    [connected, hasLink, reviewedAny, previewDone, commerce, storeConnected],
   );
 
   const doneCount = steps.filter((s) => s.done).length;

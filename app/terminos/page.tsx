@@ -1,22 +1,24 @@
 import type { Metadata } from 'next';
 import { LegalLayout } from '@/components/LegalLayout';
 import { brand, supportEmail } from '@/lib/site';
-import { PLANS, TRIAL_DAYS } from '@/lib/plans';
+import { PLAN_CATALOG, TRIAL_DAYS } from '@/lib/plans';
 
 export const metadata: Metadata = { title: `Términos del servicio — ${brand}` };
 
 export default function TerminosPage() {
-  const pro = PLANS.pro;
-  const business = PLANS.business;
+  const planes = PLAN_CATALOG;
+  const lista = planes.map((p) => `${p.name} (${p.price}/mes)`).join(', ').replace(/, ([^,]*)$/, ' y $1');
   return (
     <LegalLayout title="Términos del servicio" updated="17 de septiembre de 2026">
       <h2>1. El servicio</h2>
       <p>
         {brand} ofrece, mediante suscripción de pago, herramientas para centralizar reseñas de
         plataformas de terceros, generar borradores de respuesta con IA, recibir alertas,
-        gestionar quejas en privado y (plan Business) pedir valoraciones por WhatsApp al entregar
-        un pedido. Hay dos planes de pago — <strong>Pro</strong> ({pro.price}/mes) y{' '}
-        <strong>Business</strong> ({business.price}/mes) —, cada uno para{' '}
+        gestionar quejas en privado y (planes de la familia Tiendas) pedir valoraciones por
+        WhatsApp al entregar un pedido. Hay {planes.length} planes de pago — {lista} — en dos
+        familias: <strong>Negocio</strong> (bares, clínicas, servicios: reseñas e IA) y{' '}
+        <strong>Tiendas</strong> (e-commerce y dropshipping: además, conexión con la plataforma de
+        pedidos y WhatsApp al entregar). Cada plan es para{' '}
         <strong>1 empresa</strong>, con cuotas mensuales independientes (peticiones de opiniones,
         opiniones importadas, respuestas IA y sincronizaciones) y un tope de almacenamiento por
         empresa. No existe plan gratuito: todos los planes requieren suscripción activa. Los precios
@@ -48,20 +50,21 @@ export default function TerminosPage() {
       </p>
       <h2>5. Precios, prueba gratis, facturación y cancelación</h2>
       <ul>
-        <li><strong>Planes de pago:</strong> Pro ({pro.price}/mes, {pro.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones
-          de opiniones al mes) y Business ({business.price}/mes, {business.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones
-          de opiniones al mes). Sin suscripción activa no hay acceso a la plataforma.</li>
-        <li><strong>Prueba de {TRIAL_DAYS} días (Pro y Business):</strong> requiere tarjeta vía Stripe pero no se
+        <li><strong>Planes de pago:</strong> {lista}, con cuotas de peticiones de opiniones que van
+          de {planes[0].limits.requestsPerMonth.toLocaleString('es-ES')} a{' '}
+          {planes[planes.length - 1].limits.requestsPerMonth.toLocaleString('es-ES')} al mes según el plan. Sin
+          suscripción activa no hay acceso a la plataforma.</li>
+        <li><strong>Prueba de {TRIAL_DAYS} días (todos los planes):</strong> requiere tarjeta vía Stripe pero no se
           realiza ningún cargo durante la prueba. Si cancelas antes de que termine, no pagas nada. Si
           el primer cobro no se completa, el acceso al panel se corta automáticamente el día {TRIAL_DAYS + 1} y tus
           datos se conservan 30 días.</li>
-        <li><strong>Cuotas mensuales:</strong> cada ciclo incluye peticiones de opiniones ({pro.limits.requestsPerMonth} Pro /{' '}
-          {business.limits.requestsPerMonth.toLocaleString('es-ES')} Business), opiniones guardadas, respuestas de IA y sincronizaciones
+        <li><strong>Cuotas mensuales:</strong> cada ciclo incluye peticiones de opiniones, opiniones
+          guardadas, respuestas de IA y sincronizaciones en proporción al plan contratado
           automáticas. Al llegar al 100&nbsp;% de una cuota, las peticiones de esa función se bloquean
           con código <code>429</code> (cuota agotada) o <code>402</code> (falta plan o suscripción
           activa) hasta el siguiente ciclo o hasta comprar una recarga.</li>
         <li><strong>Límites de base de datos:</strong> cada plan fija un máximo de opiniones retenidas
-          ({pro.limits.reviewsStored.toLocaleString('es-ES')} Pro / {business.limits.reviewsStored.toLocaleString('es-ES')} Business), de registros de auditoría y de conexiones
+          (de {planes[0].limits.reviewsStored.toLocaleString('es-ES')} a {planes[planes.length - 1].limits.reviewsStored.toLocaleString('es-ES')}), de registros de auditoría y de conexiones
           simultáneas. Al superar el máximo, las filas más antiguas se <strong>purgan o archivan
           automáticamente</strong>; si necesitas conservar más histórico, puedes ampliar el
           almacenamiento o subir de plan.</li>
@@ -69,7 +72,7 @@ export default function TerminosPage() {
           confirma el cobro y caducan al cierre del ciclo en curso. Paquetes disponibles: +1.000
           peticiones (9&nbsp;€), +2.000 opiniones (12&nbsp;€), +500 respuestas IA (15&nbsp;€) y +500
           sincronizaciones (6&nbsp;€). No son reembolsables una vez consumidas.</li>
-        <li><strong>WhatsApp y email (planes Pro y Business):</strong> solo se escribe al contacto que el
+        <li><strong>WhatsApp y email (todos los planes para peticiones; las familias Tiendas añaden el aviso al entregar):</strong> solo se escribe al contacto que el
           cliente facilitó; debes informar en tu checkout de que podrá recibir una solicitud de
           valoración. Respetamos las políticas de WhatsApp Business y las bajas («STOP»).</li>
         <li>Precios con impuestos indicados en el checkout; pago por adelantado vía Stripe.</li>

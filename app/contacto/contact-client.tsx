@@ -12,7 +12,7 @@ import {
   Send,
 } from 'lucide-react';
 import { SITE } from '@/lib/site';
-import { PLANS } from '@/lib/plans';
+import { PLAN_CATALOG, PLANS } from '@/lib/plans';
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/components/Toast';
 import { Spinner } from '@/components/Skeleton';
@@ -150,7 +150,7 @@ export function ContactClient() {
               Soporte incluido en cada plan
             </p>
             <ul className="mt-3 space-y-2 text-sm">
-              {(['pro', 'business'] as const).map((id) => (
+              {PLAN_CATALOG.map((def) => def.id).map((id) => (
                 <li key={id} className="flex items-center gap-2.5 text-ink-200">
                   <BadgeCheck size={15} className="shrink-0 text-emerald-300" />
                   <span>

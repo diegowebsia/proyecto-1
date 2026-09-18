@@ -162,9 +162,9 @@ export function AboutClient() {
                   entra una reseña de ≤3 estrellas, el negocio recibe un WhatsApp al instante y puede
                   responder en minutos. Cada petición de opinión, opinión importada, respuesta de IA
                   y sincronización consume de su contador mensual
-                  ({PLANS.pro.limits.requestsPerMonth} en {PLANS.pro.tier} y{' '}
-                  {PLANS.business.limits.requestsPerMonth} en {PLANS.business.tier} peticiones de
-                  opiniones), ampliable con recargas puntuales desde el panel.
+                  desde {PLANS.negocio.limits.requestsPerMonth} peticiones de opiniones en el
+                  plan de entrada hasta {PLANS.tiendas_plus.limits.requestsPerMonth.toLocaleString('es-ES')} en
+                  Tiendas Plus), ampliable con recargas puntuales desde el panel.
                 </span>
               </span>
             </div>

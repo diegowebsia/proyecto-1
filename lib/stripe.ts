@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { env, isStripeConfigured } from '@/lib/env';
-import { ADDON_PACKS, PLANS, type AddonPack, type AddonPackId, type PlanId } from '@/lib/plans';
+import { ADDON_PACKS, PLAN_CATALOG, type AddonPack, type AddonPackId, type PlanDefinition, type PlanId } from '@/lib/plans';
 
 // Las reglas comerciales viven únicamente en `lib/plans.ts`.
 
@@ -22,45 +22,49 @@ export function getStripe(): Stripe | null {
  * Planes de pago (todos pasan por Stripe con prueba de 7 días; no hay plan gratuito).
  * `priceEnv` documenta la variable de entorno recomendada en `.env.example`.
  */
-export const STRIPE_PLANS = [
-  {
-    id: 'pro' as const,
-    name: PLANS.pro.name,
-    tier: PLANS.pro.tier,
-    priceEnv: 'STRIPE_PRICE_PRO',
-    fallbackPrice: `${PLANS.pro.price}/mes`,
-    limits: PLANS.pro.limits,
-    features: [
-      '1 empresa · 3 sedes',
-      '500 peticiones de opiniones/mes',
-      '1.000 opiniones y 300 respuestas IA/mes',
-      'Sincronización automática cada 6 h',
-      'Email + WhatsApp, Google Business, Places y Trustpilot',
-    ],
-  },
-  {
-    id: 'business' as const,
-    name: PLANS.business.name,
-    tier: PLANS.business.tier,
-    priceEnv: 'STRIPE_PRICE_BUSINESS',
-    fallbackPrice: `${PLANS.business.price}/mes`,
-    limits: PLANS.business.limits,
-    features: [
-      '1 empresa · 10 sedes',
-      '2.000 peticiones de opiniones/mes',
-      '5.000 opiniones y 1.500 respuestas IA/mes',
-      'Sincronización automática cada hora',
-      'Tienda (Shopify/Woo/TPV) + WhatsApp al entregar',
-      'API pública de ingesta y soporte prioritario',
-    ],
-  },
-] as const;
+/**
+ * Planes de pago (todos pasan por Stripe con prueba de {TRIAL_DAYS} días; no hay
+ * plan gratuito). La lista se DERIVA del catálogo de `lib/plans.ts` para que el
+ * checkout, la bienvenida y la landing nunca se desincronicen.
+ */
+export const STRIPE_PLANS = PLAN_CATALOG.map((p) => ({
+  id: p.id,
+  name: p.name,
+  tier: p.tier,
+  track: p.track,
+  priceEnv: `STRIPE_PRICE_${p.id.toUpperCase()}`,
+  fallbackPrice: `${p.price}/mes`,
+  limits: p.limits,
+  features: [
+    `${p.limits.locations} ${p.limits.locations === 1 ? 'local' : 'sedes'} · ${p.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones/mes`,
+    `${p.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones y ${p.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA/mes`,
+    `Sincronización automática ${
+      p.limits.syncsPerMonth >= 1440 ? 'cada 30 min' : p.limits.syncsPerMonth >= 720 ? 'cada hora' : p.limits.syncsPerMonth >= 300 ? 'cada 3 h' : 'cada 6 h'
+    }`,
+    p.features.storeIntegration ? 'Tienda (Shopify/Woo/TPV) + WhatsApp al entregar' : 'Email + WhatsApp, Google, TripAdvisor y Trustpilot',
+    p.features.support === 'prioritario' ? 'API pública de ingesta y soporte prioritario' : `Soporte por ${p.features.support}`,
+  ],
+})) as Array<{
+  id: PlanId;
+  name: string;
+  tier: string;
+  track: 'local' | 'commerce';
+  priceEnv: string;
+  fallbackPrice: string;
+  limits: PlanDefinition['limits'];
+  features: string[];
+}>;
 
 /** Price ID de un plan de pago ('' si falta en el .env). */
+const PRICE_BY_PLAN: Record<PlanId, string> = {
+  negocio: env.stripePriceNegocio,
+  negocio_plus: env.stripePriceNegocioPlus,
+  tiendas: env.stripePriceTiendas,
+  tiendas_plus: env.stripePriceTiendasPlus,
+};
+
 export function priceIdFor(plan: PlanId): string {
-  if (plan === 'business') return env.stripePriceBusiness;
-  if (plan === 'pro') return env.stripePricePro;
-  return '';
+  return PRICE_BY_PLAN[plan] ?? '';
 }
 
 const ADDON_PRICE_ENV: Record<AddonPackId, string> = {
@@ -109,7 +113,6 @@ export function addonPackFromPriceId(priceId?: string | null): AddonPack | null 
 /** ¿Este Price ID corresponde a un plan de pago (y a cuál)? */
 export function planFromPriceId(priceId?: string | null): PlanId | null {
   if (!priceId) return null;
-  if (priceId === env.stripePriceBusiness) return 'business';
-  if (priceId === env.stripePricePro) return 'pro';
-  return null;
+  const entry = (Object.entries(PRICE_BY_PLAN) as Array<[PlanId, string]>).find(([, v]) => v && v === priceId);
+  return entry ? entry[0] : null;
 }

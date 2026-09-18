@@ -18,7 +18,7 @@ const Body = z.object({
 /**
  * Endpoint GENÉRICO «pedido entregado» para cualquier tienda/TPV/Stripe:
  * llámalo al entregar y enviamos el WhatsApp de valoración al cliente.
- * (Solo plan Business + cuota + opt-in RGPD.)
+ * (Solo planes Tiendas + cuota + opt-in RGPD.)
  * El pedido se ENCOLA y se responde al instante; el worker lo procesa.
  */
 export async function POST(req: Request) {

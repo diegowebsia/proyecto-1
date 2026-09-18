@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * Uso: GET /api/stripe/checkout?plan=pro|business
  *
  * Reglas comerciales (v3.9.0 — modelo 100% de pago, 2 planes):
- *  · Solo hay DOS planes de pago (Pro 29 €/mes y Business 79 €/mes). No existe
+ *  · Hay CUATRO planes de pago (Negocio 19, Negocio Plus 39, Tiendas 49, Tiendas Plus 89 €/mes). No existe
  *    plan gratuito: todo pasa por Stripe.
  *  · `payment_method_collection: 'always'` → la tarjeta es OBLIGATORIA para
  *    iniciar la prueba (evita cuentas fantasma y permite el cobro automático).
@@ -40,13 +40,13 @@ export async function GET(req: Request) {
   const requested = url.searchParams.get('plan');
 
   // Solo planes de pago (resolvePlan mapea cualquier alias legacy a pago).
-  const plan: PlanId = resolvePlan(requested) === 'business' ? 'business' : 'pro';
+  const plan: PlanId = resolvePlan(requested);
 
   const price = priceIdFor(plan);
   if (!price) {
     return NextResponse.json(
       {
-        error: `Falta ${plan === 'business' ? 'STRIPE_PRICE_BUSINESS' : 'STRIPE_PRICE_PRO'} en el .env.`,
+        error: `El servidor aún no tiene el precio de Stripe del plan configurado (STRIPE_PRICE_${plan.toUpperCase()}).`,
         code: 'missing_price_id',
       },
       { status: 500 },
