@@ -22,14 +22,15 @@ export const metadata = { title: 'Activa tu prueba — ReviewFlow AI' };
 export default async function BienvenidoPage({
   searchParams,
 }: {
-  searchParams: { plan?: string; checkout?: string; reason?: string };
+  searchParams: Promise<{ plan?: string; checkout?: string; reason?: string }>;
 }) {
+  const q = await searchParams;
   const user = await getSessionUser();
   if (isSupabaseConfigured && !user) redirect('/login?redirect=/bienvenido');
 
   // Modelo 100% de pago: 4 planes (negocio | negocio_plus | tiendas | tiendas_plus); los alias antiguos resuelven a pago.
-  const preselected = resolvePlan(searchParams.plan);
-  const checkout = searchParams.checkout; // success | canceled | undefined
+  const preselected = resolvePlan(q.plan);
+  const checkout = q.checkout; // success | canceled | undefined
 
   let alreadyActive = false;
   const admin = createAdminClient();
@@ -65,7 +66,7 @@ export default async function BienvenidoPage({
           email={user?.email ?? ''}
           preselected={preselected}
           checkout={checkout}
-          reason={searchParams.reason}
+          reason={q.reason}
           alreadyActive={alreadyActive}
           demo={!isSupabaseConfigured}
         />

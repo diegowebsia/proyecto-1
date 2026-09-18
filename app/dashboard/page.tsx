@@ -12,17 +12,17 @@ export const metadata = { title: 'Panel — ReviewFlow AI' };
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { tab?: string; addon?: string; pack?: string };
+  searchParams: Promise<{ tab?: string; addon?: string; pack?: string }>;
 }) {
-  const user = await getSessionUser();
+  const [user, q] = await Promise.all([getSessionUser(), searchParams]);
   const tab =
-    searchParams.tab === 'facturacion' || searchParams.tab === 'empresa'
-      ? searchParams.tab
-      : searchParams.addon
+    q.tab === 'facturacion' || q.tab === 'empresa'
+      ? q.tab
+      : q.addon
         ? 'facturacion'
         : 'bandeja';
   const addonResult =
-    searchParams.addon === 'success' ? 'success' : searchParams.addon === 'canceled' ? 'canceled' : null;
+    q.addon === 'success' ? 'success' : q.addon === 'canceled' ? 'canceled' : null;
   if (isSupabaseConfigured && !user) redirect('/login?redirect=/dashboard');
 
   let tenants: TenantInfo[] = [];
