@@ -221,8 +221,7 @@ export function BillingPanel({
           <p className="text-xs text-ink-400">
             Cuota mensual: {plan.limits.requestsPerMonth.toLocaleString('es-ES')} peticiones de opiniones ·{' '}
             {plan.limits.reviewsPerMonth.toLocaleString('es-ES')} opiniones ·{' '}
-            {plan.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA (
-            {(plan.limits.aiTokensPerMonth / 1000).toLocaleString('es-ES')}k tokens) ·{' '}
+            {plan.limits.aiRepliesPerMonth.toLocaleString('es-ES')} respuestas IA ·{' '}
             {plan.limits.syncsPerMonth.toLocaleString('es-ES')} sincronizaciones.
           </p>
           <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-500">

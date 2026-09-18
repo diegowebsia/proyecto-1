@@ -13,6 +13,7 @@ const COLUMNS: Array<{ title: string; links: Array<[string, string]> }> = [
       ['Cómo funciona', '/#como-funciona'],
       ['Planes', '/#planes'],
       ['Ampliaciones de cuota', '/#ampliaciones'],
+      ['Demo del panel', '/demo/business'],
       ['Preguntas frecuentes', '/#faq'],
     ],
   },

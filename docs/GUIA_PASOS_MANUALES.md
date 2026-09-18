@@ -181,6 +181,10 @@ Reglas de formato: **sin comillas**, **sin espacios** alrededor del `=`, una var
 escribe el móvil de alertas, elige tono de IA y pulsa «Conectar cuenta» en Trustpilot/tienda —
 sin ver NUNCA un campo de claves (v3.14.0). Las URLs públicas del embudo van en *Embudo*.
 
+El sector (`business_type`) y el contacto propio (`contact_email`, `contact_phone`, `website`)
+también los escribe el cliente en «Tu negocio ante la IA»: alimentan el prompt de la IA (que
+responde según el sector y solo ofrece esos canales). Todo vive cifrado por tenant en `settings`.
+
 **Tú, el dueño (`/admin` → *Conexiones*):** completas la parte técnica de las solicitudes
 asistidas — secreto del webhook de **Shopify/WooCommerce/TPV**, **API key + Business Unit ID** de
 Trustpilot y **Location ID** de TripAdvisor. Todo se cifra con `INTEGRATION_ENCRYPTION_KEY` y

@@ -56,10 +56,9 @@ export async function GET(req: Request) {
     status: 'ready',
     jobId,
     reply: row.result_text,
+    // El coste interno del modelo nunca se expone al cliente.
     usage: {
       tokens: (row.prompt_tokens ?? 0) + (row.completion_tokens ?? 0),
-      costUsd: Number(row.cost_usd ?? 0),
-      model: row.model,
       provider: row.provider,
       latencyMs: row.latency_ms,
     },

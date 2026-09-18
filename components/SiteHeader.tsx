@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Menu, Star, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, Menu, Sparkles, Star, X } from 'lucide-react';
 import { EASE } from '@/components/Motion';
+import { useHeaderGlass } from '@/components/useHeaderGlass';
 import { SITE } from '@/lib/site';
 import { TRIAL_DAYS } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 
 /**
  * Cabecera pública pegajosa con glassmorphism + parallax (v3.14.0).
+ * v3.15.0: el comportamiento vive en `useHeaderGlass()` y lo comparten TODAS
+ * las barras de navegación del sitio (panel, bienvenida, admin).
  *
  * · `sticky top-0 z-50` con superficie esmerilada (`backdrop-blur` +
  *   `bg-ink-950/80` + `border-b border-white/10`).
@@ -27,6 +30,7 @@ const MARKETING_LINKS: Array<[string, string]> = [
   ['Planes', '#planes'],
   ['Ampliaciones', '#ampliaciones'],
   ['FAQ', '#faq'],
+  ['Demo', '/demo/business'],
 ];
 
 export function SiteHeader({
@@ -37,20 +41,9 @@ export function SiteHeader({
   /** Slot derecho alternativo para la variante simple (p. ej. «Volver»). */
   right?: React.ReactNode;
 }) {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { scrollY } = useScroll();
-
-  // Opacidad progresiva del cristal (parallax del propio header).
-  const glassOpacity = useTransform(scrollY, [0, 90], [0.25, 1]);
-  const brandShift = useTransform(scrollY, [0, 400], [0, -8]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  // Parallax glassmorphism COMPARTIDO con el resto de barras de la web.
+  const { scrolled, glassOpacity, brandShift } = useHeaderGlass();
 
   // Cierra el menú móvil al navegar o redimensionar.
   useEffect(() => {
@@ -113,8 +106,13 @@ export function SiteHeader({
                 <a
                   key={href}
                   href={href}
-                  className="rounded-lg px-3 py-2 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white"
+                  className={
+                    href.startsWith('/demo')
+                      ? 'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 font-semibold text-brand-200 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white'
+                      : 'rounded-lg px-3 py-2 transition-colors duration-200 hover:bg-white/[0.06] hover:text-white'
+                  }
                 >
+                  {href.startsWith('/demo') && <Sparkles size={13} className="text-brand-300" />}
                   {label}
                 </a>
               ))}

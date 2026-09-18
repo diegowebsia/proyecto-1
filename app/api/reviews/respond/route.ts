@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generateReplyForTenant, generateReviewReply } from '@/lib/ai';
+import { aiProfileFromSettings, generateReplyForTenant, generateReviewReply } from '@/lib/ai';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { hasAccess } from '@/lib/plans';
@@ -14,6 +14,7 @@ const Body = z.object({
   rating: z.number().min(1).max(5),
   reviewText: z.string().min(1).max(4000),
   tone: z.enum(['profesional', 'cercano', 'formal']).optional(),
+  businessType: z.string().max(80).optional(),
   /** true = borrador PRIVADO conciliador (filtro de malas experiencias), no público. */
   private: z.boolean().optional(),
 });
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
 
     const { data: tenant } = await admin
       .from('tenants')
-      .select('subscription_status, suspended, trial_ends_at')
+      .select('subscription_status, suspended, trial_ends_at, settings')
       .eq('id', tenantId)
       .single();
     // Regla estricta: sin suscripción activa o con la prueba caducada → 402.
@@ -98,6 +99,7 @@ export async function POST(req: Request) {
       );
     }
 
+    const profile = aiProfileFromSettings(tenant?.settings as Record<string, unknown> | undefined);
     const guarded = await generateReplyForTenant(
       { admin, tenantId },
       {
@@ -106,6 +108,8 @@ export async function POST(req: Request) {
         rating: input.rating,
         reviewText: input.reviewText,
         tone: input.tone,
+        businessType: profile.businessType,
+        contact: profile.contact,
         privateMessage: input.private === true,
       },
     );
@@ -152,6 +156,7 @@ export async function POST(req: Request) {
     rating: input.rating,
     reviewText: input.reviewText,
     tone: input.tone,
+    businessType: input.businessType,
     privateMessage: input.private === true,
   });
   await systemLog('info', 'ai.responder', `Borrador demo generado (${provider})`, {

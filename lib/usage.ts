@@ -1029,6 +1029,16 @@ function storageExhaustedMessage(check: QuotaCheck): string {
 }
 
 /** Payload de cuota seguro para el cliente (sin datos internos). */
+/**
+ * Vista pública del consumo de IA del ciclo: siempre se excluye el coste interno
+ * del modelo contratado (`costUsd`) y el nombre del proveedor (`model`) — esa
+ * contabilidad es solo del operador (se consulta en /admin).
+ */
+export function publicAiUsage(ai: QuotaCheck['aiUsage']) {
+  const { costUsd: _cost, model: _model, ...pub } = ai;
+  return pub;
+}
+
 export function publicQuota(check: QuotaCheck) {
   // Alias agregados: suma de las 4 cuotas mensuales (compatibilidad con la UI
   // y los mensajes que antes hablaban de «eventos»).
@@ -1047,8 +1057,8 @@ export function publicQuota(check: QuotaCheck) {
     renewalAt: check.renewalAt,
     renewalLabel: check.renewalLabel,
     metrics: check.metrics,
-    /** Consumo real de tokens de IA del ciclo + coste estimado (USD). */
-    aiUsage: check.aiUsage,
+    /** Consumo real de tokens de IA del ciclo (sin coste interno ni modelo). */
+    aiUsage: publicAiUsage(check.aiUsage),
     counters: check.counters,
     extras: check.extras,
     packs: check.packs,

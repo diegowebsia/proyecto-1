@@ -6,6 +6,7 @@ import { isSupabaseConfigured } from '@/lib/env';
 import { hasAccess, resolvePlan } from '@/lib/plans';
 import { Aurora } from '@/components/Motion';
 import { WelcomeClient } from './welcome-client';
+import { GlassHeader } from '@/components/GlassHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Activa tu prueba — ReviewFlow AI' };
@@ -44,10 +45,9 @@ export default async function BienvenidoPage({
   if (checkout === 'success' && alreadyActive) redirect('/dashboard');
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-ink-950 text-ink-50">
+    <div className="relative min-h-screen overflow-clip bg-ink-950 text-ink-50">
       <Aurora />
-      <header className="nav-blur sticky top-0 z-30">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-4 px-4">
+      <GlassHeader maxWidth="max-w-4xl" innerClassName="gap-4">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-sm text-ink-300 transition-colors hover:text-white"
@@ -59,8 +59,7 @@ export default async function BienvenidoPage({
             <span className="mx-2 text-ink-600">·</span>
             <span className="font-semibold text-white">Paso 2 de 2 · activa tu prueba</span>
           </p>
-        </div>
-      </header>
+      </GlassHeader>
       <div className="relative z-10">
         <WelcomeClient
           email={user?.email ?? ''}

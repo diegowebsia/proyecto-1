@@ -21,6 +21,7 @@ import {
   TriangleAlert,
 } from 'lucide-react';
 import { useToast } from '@/components/Toast';
+import { useHeaderGlass } from '@/components/useHeaderGlass';
 import { ReviewListSkeleton, StatSkeleton } from '@/components/Skeleton';
 import { HelpCenter } from '@/components/HelpCenter';
 import { Wizard } from '@/components/Wizard';
@@ -83,6 +84,8 @@ export function DashboardClient({
   const [hydrated, setHydrated] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpTopic, setHelpTopic] = useState<string | null>(null);
+  // v3.15.0: el panel usa el MISMO parallax glass de la cabecera pública.
+  const { scrolled, glassOpacity } = useHeaderGlass();
 
   useEffect(() => {
     setHydrated(true);
@@ -220,8 +223,27 @@ export function DashboardClient({
   return (
     <div className="relative min-h-screen bg-ink-950 text-ink-100">
       {/* Header */}
-      <header className="nav-blur sticky top-0 z-30">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+      <header
+        className={cn(
+          'sticky top-0 z-30 transition-shadow duration-300',
+          scrolled ? 'shadow-[0_14px_40px_-18px_rgba(2,6,23,0.9)]' : 'shadow-none',
+        )}
+      >
+        {/* Superficie de vidrio con opacidad progresiva al hacer scroll */}
+        <motion.div
+          aria-hidden
+          style={{ opacity: glassOpacity }}
+          className={cn(
+            'absolute inset-0 -z-10 border-b bg-ink-950/80 backdrop-blur-md transition-all duration-300',
+            scrolled ? 'border-white/10 backdrop-blur-lg saturate-150' : 'border-white/[0.04] saturate-125',
+          )}
+        />
+        <div
+          className={cn(
+            'mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 transition-[height] duration-300',
+            scrolled ? 'h-14' : 'h-16',
+          )}
+        >
           <Link href="/" className="group flex items-center gap-2.5 font-bold tracking-tightish text-white">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#2563eb,#8b5cf6)] shadow-[0_8px_24px_-10px_rgba(37,99,235,0.95)] transition-transform duration-300 group-hover:scale-105">
               <Star size={17} fill="currentColor" />

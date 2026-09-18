@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { extractPlaceId } from '@/lib/maps';
 
+const emptyToUndef = (v: string | undefined) => (v === undefined ? undefined : v.trim() || undefined);
+
 const Body = z.object({
   tenantId: z.string().min(1),
   tone: z.enum(['profesional', 'cercano', 'formal']).optional(),
@@ -12,13 +14,27 @@ const Body = z.object({
   tripadvisor_url: z.string().max(300).optional(),
   trustpilot_url: z.string().max(300).optional(),
   funnel_enabled: z.boolean().optional(),
+  /** Sector del negocio (bar, clínica, taller…): personaliza el vocabulario de la IA. */
+  business_type: z.string().trim().max(80).optional(),
+  /** Contacto PROPIO del negocio: la IA solo ofrece estos canales en sus textos. */
+  contact_email: z
+    .union([z.literal(''), z.string().email('Ese email no parece válido.').max(160)])
+    .optional(),
+  contact_phone: z.string().max(24).optional(),
+  website: z.string().max(200).optional(),
 });
 
 /** Guarda ajustes de la empresa (tono IA, Place ID, móvil WhatsApp, URLs del embudo). */
 export async function PATCH(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return NextResponse.json({ error: 'Parámetros inválidos.' }, { status: 400 });
-  const { tenantId, ...patch } = parsed.data;
+  const { tenantId, ...rest } = parsed.data;
+  const patch = {
+    ...rest,
+    contact_phone: emptyToUndef(rest.contact_phone),
+    website: emptyToUndef(rest.website),
+  };
+  if (patch.contact_email === '') patch.contact_email = undefined;
 
   // v3.14.0: el cliente pega el enlace de su ficha de Google; aquí se normaliza
   // al identificador interno. Si no se reconoce ni siquiera un id, se avisa en

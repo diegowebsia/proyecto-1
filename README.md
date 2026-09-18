@@ -1,4 +1,4 @@
-# ⭐ ReviewFlow AI v3.14.0
+# ⭐ ReviewFlow AI v3.15.0
 
 **Plataforma SaaS multi-tenant para centralizar opiniones reales (Google · Trustpilot · Tiendas),
 responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
@@ -13,9 +13,12 @@ responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
 - ✅ **Demo del panel sin registro**: `/demo/pro` y `/demo/business` abren directamente el panel
   exacto de cada plan con datos simulados — banner ámbar «Panel demo», toggle Pro ⇄ Business y
   acciones simuladas en el navegador (no se llama a APIs ni se guarda nada; rutas `noindex`).
-- ✅ **Cabecera pública con glassmorphism + parallax**: `sticky top-0 z-50`, `backdrop-blur-md`,
-  opacidad y altura que se ajustan progresivamente al hacer scroll, sombra suave y micro-parallax
-  en el héroe (patrón de las mejores landing SaaS 2026).
+- ✅ **La IA escribe COMO tu negocio**: sector configurable (bar, clínica, taller…) que cambia el
+  vocabulario del borrador, y contacto propio (email/teléfono/web) — la IA solo ofrece los canales
+  del cliente y jamás menciona a ReviewFlow ni a terceros. El coste interno del modelo contratado
+  nunca se muestra ni se envía al navegador del cliente.
+- ✅ **Glassmorphism + parallax en TODAS las barras** (landing, legales, panel, bienvenida, admin):
+  un único hook `useHeaderGlass` comparte cristal progresivo, sombra, blur y contracción de altura.
 
 - ✅ **IA medida de verdad**: todas las llamadas pasan por `lib/openai.ts` con **`gpt-4o-mini`**,
   timeout, reintentos con backoff exponencial, rate limit por empresa, semáforo de concurrencia,
@@ -274,7 +277,7 @@ Registro → /bienvenido (2 planes de pago)
 
 ---
 
-## 🎨 Sistema de diseño v3.14.0
+## 🎨 Sistema de diseño v3.15.0
 
 - **Fondo** `#090D16` (`ink-950`) con escala propia `ink-50…950`, acento `brand` (azul #2563eb →
   #5f92fb) y violeta de apoyo; nunca negro puro ni blanco puro.

@@ -28,7 +28,7 @@ import type { AdminLike } from '@/lib/usage';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { systemLog } from '@/lib/logger';
 import { sendMail } from '@/lib/mail';
-import { generateReplyForTenant } from '@/lib/ai';
+import { aiProfileFromSettings, generateReplyForTenant } from '@/lib/ai';
 import { handleDeliveredOrder, type DeliveredOrder } from '@/lib/store';
 import {
   sendWhatsappForTenant,
@@ -291,6 +291,14 @@ async function handleSyncProvider(
 }
 
 async function handleAiGenerate(admin: AdminLike, job: Extract<QueueJob, { type: 'ai.generate' }>): Promise<JobResult> {
+  // El perfil del negocio (sector + contacto) se lee SIEMPRE en el momento de
+  // generar: si el cliente actualizó sus ajustes, el borrador ya los usa.
+  const { data: tenantRow } = await admin
+    .from('tenants')
+    .select('settings')
+    .eq('id', job.tenantId)
+    .single();
+  const profile = aiProfileFromSettings((tenantRow?.settings as Record<string, unknown>) ?? undefined);
   const result = await generateReplyForTenant(
     { admin, tenantId: job.tenantId },
     {
@@ -298,6 +306,8 @@ async function handleAiGenerate(admin: AdminLike, job: Extract<QueueJob, { type:
       authorName: job.authorName,
       rating: job.rating,
       reviewText: job.reviewText,
+      businessType: profile.businessType,
+      contact: profile.contact,
       tone: job.tone,
       privateMessage: job.private === true,
     },

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowRight,
+  Eye,
   BadgeCheck,
   Bot,
   Check,
@@ -68,7 +69,7 @@ const bento = [
   {
     icon: Bot,
     title: 'IA medida, sin sorpresas',
-    desc: 'Cada borrador pasa por un cliente de IA con reintentos y límite de velocidad. El sistema cuenta los tokens que consumes y los compara con el presupuesto de tu plan: si se agota, la IA se pausa y sigues respondiendo con plantillas. Nunca te llega un cargo raro.',
+    desc: 'Cada borrador se genera dentro de la bolsa mensual que incluye tu plan, y la ves siempre como un depósito: si se agota, la IA se pausa y sigues respondiendo con plantillas listas. Nunca te llega un cargo raro.',
     span: '',
     accent: 'from-brand-400/20 to-transparent',
   },
@@ -122,7 +123,7 @@ const faqs = [
   },
   {
     q: '¿Cómo funciona la IA y qué me cuesta?',
-    a: 'Usa gpt-4o-mini, el modelo más económico de OpenAI: lee la reseña, tu tono y los datos de tu negocio, y escribe el borrador en segundos (o un aviso privado si la reseña es de 1 a 3★). Va incluida en tu plan con un presupuesto de tokens al mes (250.000 en Pro / 1.200.000 en Business); si se agota, la IA se pausa hasta el día 1 o hasta que compres la recarga de IA. Nunca pagas de más por sorpresa.',
+    a: 'Nuestra IA lee la reseña, el tono que elegiste y a qué te dedicas (no es lo mismo responder como bar que como clínica) y te escribe el borrador en segundos; si la reseña es de 1 a 3★ te avisa en privado antes de nada. Las respuestas van incluidas en tu plan con una bolsa mensual: si se agota, la IA se pausa hasta el día 1 o hasta que cojas una recarga. Nunca pagas por respuesta ni te llevas sorpresas.',
   },
   {
     q: '¿Qué pasa si el proveedor de IA falla?',
@@ -169,7 +170,8 @@ export function Landing() {
   const mockupRotate = useTransform(scrollY, [0, 600], [0, 2.5]);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-ink-100">
+    <div className="relative min-h-screen overflow-x-clip bg-ink-950 text-ink-100">
+      {/* overflow-clip (no hidden): recorta los glows SIN matar el sticky de la cabecera */}
       {/* NAV — pegajosa, esmerilada y con transición/parallax al hacer scroll */}
       <SiteHeader />
 
@@ -220,6 +222,31 @@ export function Landing() {
             <a href="#como-funciona" className="btn-secondary btn-lg w-full sm:w-auto">
               Ver cómo funciona
             </a>
+          </motion.div>
+
+          {/* Acceso directo a la demo del panel (v3.15.0) */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.34, ease: EASE }}
+            className="mt-5 flex flex-col items-center justify-center gap-2 text-sm text-ink-300 sm:flex-row"
+          >
+            <span>¿Prefieres tocarlo antes?</span>
+            <span className="flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href="/demo/pro"
+                className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/40 bg-brand-500/10 px-3.5 py-1.5 font-semibold text-brand-200 transition-all duration-200 hover:border-brand-400/70 hover:text-white hover:shadow-[0_6px_20px_-8px_rgba(59,118,240,0.8)]"
+              >
+                <Eye size={14} /> Ver la demo del panel · Pro
+              </Link>
+              <Link
+                href="/demo/business"
+                className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-500/10 px-3.5 py-1.5 font-semibold text-violet-200 transition-all duration-200 hover:border-violet-400/70 hover:text-white hover:shadow-[0_6px_20px_-8px_rgba(139,92,246,0.8)]"
+              >
+                <Eye size={14} /> Business
+              </Link>
+            </span>
+            <span className="text-xs text-ink-500">sin registro, datos simulados</span>
           </motion.div>
 
           <motion.p
@@ -585,6 +612,32 @@ export function Landing() {
             })}
           </div>
 
+          {/* DEMO DEL PANEL (v3.15.0) — que se hagan a la idea antes de contratar */}
+          <Reveal delay={0.05} className="mx-auto mt-8 max-w-4xl">
+            <div className="card relative overflow-hidden p-5 sm:p-6">
+              <div className="pointer-events-none absolute -left-24 -top-24 h-56 w-56 rounded-full bg-brand-600/15 blur-3xl" aria-hidden />
+              <div className="relative flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-base font-extrabold tracking-tight text-white">
+                    <Eye size={17} className="text-brand-300" /> Míralo por dentro antes de decidir
+                  </p>
+                  <p className="mt-1 text-sm text-ink-300">
+                    Es el panel exacto que verás si contratas, con datos simulados: ni una
+                    inscripción, ni una tarjeta, ni una llamada. Entra, pulsa, muévelo.
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <Link href="/demo/pro" className="btn-secondary btn-sm">
+                    Demo Plan Pro
+                  </Link>
+                  <Link href="/demo/business" className="btn-primary btn-sm">
+                    Demo Plan Business
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
           {/* AMPLIACIONES */}
           <div id="ampliaciones" className="mx-auto mt-10 max-w-4xl scroll-mt-24">
             <Reveal>
@@ -618,7 +671,6 @@ export function Landing() {
                             ['Peticiones de opiniones/mes', ...PLAN_CATALOG.map((p) => p.limits.requestsPerMonth)],
                             ['Opiniones importadas/mes', ...PLAN_CATALOG.map((p) => p.limits.reviewsPerMonth)],
                             ['Respuestas IA/mes', ...PLAN_CATALOG.map((p) => p.limits.aiRepliesPerMonth)],
-                            ['Presupuesto de IA (tokens/mes)', ...PLAN_CATALOG.map((p) => p.limits.aiTokensPerMonth)],
                             ['Sincronizaciones automáticas/mes', ...PLAN_CATALOG.map((p) => p.limits.syncsPerMonth)],
                             ['Opiniones guardadas (tope)', ...PLAN_CATALOG.map((p) => p.limits.reviewsStored)],
                             ['Almacenamiento activo (MB)', ...PLAN_CATALOG.map((p) => p.limits.storageMb)],

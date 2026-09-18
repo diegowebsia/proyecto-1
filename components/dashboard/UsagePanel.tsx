@@ -132,7 +132,7 @@ export function UsagePanel({ tenantId, demo, onBuyAddon, compact = false, previe
         showBreakdown={!compact}
       />
 
-      {/* Consumo real de IA: tokens medidos por llamada + coste estimado */}
+      {/* Consumo real de IA: medición por llamada (sin exponer el coste interno) */}
       {usage.aiUsage && <AiBudget ai={usage.aiUsage} />}
 
       <StorageCaps storage={usage.storage} />

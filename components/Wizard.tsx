@@ -34,6 +34,17 @@ const PLATFORMS = [
   { id: 'tienda', name: 'Tienda online', icon: ShoppingBag, desc: 'Shopify, WooCommerce o tu TPV: nosotros lo montamos' },
 ];
 
+const SECTORS = [
+  'Bar / Cafetería',
+  'Restaurante',
+  'Peluquería / Belleza',
+  'Clínica / Salud',
+  'Hotel / Alojamiento',
+  'Taller / Automoción',
+  'Tienda',
+  'Reparto a domicilio',
+];
+
 const TONES = [
   { id: 'profesional', name: 'Profesional', icon: MessageSquareQuote, desc: 'Cordial y resolutivo' },
   { id: 'cercano', name: 'Cercano', icon: Smile, desc: 'Amable y próximo' },
@@ -51,6 +62,9 @@ export function Wizard() {
   const toast = useToast();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
+  const [sector, setSector] = useState('');
+  const [bizEmail, setBizEmail] = useState('');
+  const [bizPhone, setBizPhone] = useState('');
   const [platforms, setPlatforms] = useState<string[]>(['google']);
   const [tone, setTone] = useState<(typeof TONES)[number]['id']>('profesional');
   const [creating, setCreating] = useState(false);
@@ -84,7 +98,15 @@ export function Wizard() {
       const res = await fetch('/api/tenants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({
+          name: name.trim(),
+          settings: {
+            tone,
+            ...(sector.trim() ? { business_type: sector.trim() } : {}),
+            ...(bizEmail.trim() ? { contact_email: bizEmail.trim() } : {}),
+            ...(bizPhone.trim() ? { contact_phone: bizPhone.trim() } : {}),
+          },
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -197,8 +219,8 @@ export function Wizard() {
               <div>
                 <StepIntro
                   icon={<Building2 size={16} />}
-                  title="¿Cómo se llama tu negocio?"
-                  hint="Así aparecerá en tus respuestas, en el panel y en las alertas."
+                  title="Cuéntanos cómo es tu negocio"
+                  hint="El nombre aparecerá en tus respuestas y en el panel; el sector enseña a la IA a hablar como el tuyo."
                 />
                 <input
                   id="wz-name"
@@ -209,6 +231,50 @@ export function Wizard() {
                   maxLength={80}
                   autoFocus
                 />
+                <p className="label mt-4">¿A qué te dedicas? <span className="font-normal normal-case text-ink-500">(opcional, recomendado)</span></p>
+                <div className="flex flex-wrap gap-1.5" role="group" aria-label="Sector del negocio">
+                  {SECTORS.map((x) => {
+                    const on = sector === x;
+                    return (
+                      <button
+                        key={x}
+                        type="button"
+                        onClick={() => setSector(on ? '' : x)}
+                        aria-pressed={on}
+                        className={cn(
+                          'rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200',
+                          on
+                            ? 'border-brand-400/70 bg-[linear-gradient(120deg,rgba(37,99,235,0.35),rgba(139,92,246,0.3))] text-white shadow-[0_6px_18px_-8px_rgba(59,118,240,0.9)]'
+                            : 'border-white/10 bg-white/[0.03] text-ink-300 hover:border-white/20 hover:text-white',
+                        )}
+                      >
+                        {x}
+                      </button>
+                    );
+                  })}
+                </div>
+                <input
+                  className="input mt-2"
+                  placeholder="¿Otro? Escríbelo: «Bar de tapas con música en directo»"
+                  value={sector}
+                  onChange={(e) => setSector(e.target.value)}
+                  maxLength={80}
+                  aria-label="Sector o tipo de negocio, escrito por ti"
+                />
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="label" htmlFor="wz-email">Email donde te escriben tus clientes</label>
+                    <input id="wz-email" type="email" className="input" placeholder="hola@tunegocio.es" value={bizEmail} onChange={(e) => setBizEmail(e.target.value)} maxLength={160} />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="wz-phone">Teléfono de contacto</label>
+                    <input id="wz-phone" className="input" placeholder="600 123 456" value={bizPhone} onChange={(e) => setBizPhone(e.target.value)} maxLength={24} />
+                  </div>
+                </div>
+                <p className="hint mt-2">
+                  Si algún cliente pregunta cómo contactarte, la IA usará SOLO estos datos tuyos. Puedes
+                  cambiarlos cuando quieras en «Empresa y conexiones».
+                </p>
               </div>
             )}
 
@@ -217,7 +283,7 @@ export function Wizard() {
                 <StepIntro
                   icon={<Globe size={16} />}
                   title="¿De dónde quieres importar reseñas?"
-                  hint="Puedes elegir varias. La parte técnica se activa con un clic después, en «Empresa y conexiones»."
+                  hint="Puedes elegir varias. Después te pediremos solo lo necesario (el enlace de tu ficha; y si tienes tienda, donde se avisa que un paquete llegó — lo montamos nosotros)."
                 />
                 <div className="grid gap-2.5 sm:grid-cols-3">
                   {PLATFORMS.map((p) => {

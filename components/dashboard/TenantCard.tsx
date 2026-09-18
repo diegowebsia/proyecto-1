@@ -59,6 +59,10 @@ export function TenantCard({
   const [tone, setTone] = useState(t.settings.tone ?? 'profesional');
   const [placeId, setPlaceId] = useState(t.settings.place_id ?? '');
   const [waTo, setWaTo] = useState(t.settings.whatsapp_to ?? '');
+  const [bizType, setBizType] = useState(t.settings.business_type ?? '');
+  const [cEmail, setCEmail] = useState(t.settings.contact_email ?? '');
+  const [cPhone, setCPhone] = useState(t.settings.contact_phone ?? '');
+  const [cWeb, setCWeb] = useState(t.settings.website ?? '');
   const [taUrl, setTaUrl] = useState('');
   const [tpRequested, setTpRequested] = useState(false);
   const [taRequested, setTaRequested] = useState(false);
@@ -73,7 +77,7 @@ export function TenantCard({
 
   async function saveSettings() {
     if (preview) {
-      toast({ kind: 'success', title: 'Ajustes guardados (demo)', body: 'Tono, ficha de Google y móvil actualizados.' });
+      toast({ kind: 'success', title: 'Ajustes guardados (demo)', body: 'Sector, contacto, tono, ficha de Google y móvil actualizados.' });
       return;
     }
     setSaving(true);
@@ -86,6 +90,10 @@ export function TenantCard({
           tone,
           place_id: placeId,
           whatsapp_to: waTo || undefined,
+          business_type: bizType || undefined,
+          contact_email: cEmail || '',
+          contact_phone: cPhone || '',
+          website: cWeb || '',
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -94,7 +102,7 @@ export function TenantCard({
         toast({ kind: described.kind, title: described.title, body: described.body });
         return;
       }
-      toast({ kind: 'success', title: 'Ajustes guardados', body: 'Tu ficha, el tono y el móvil quedan actualizados.' });
+      toast({ kind: 'success', title: 'Ajustes guardados', body: 'Tu sector, contacto, ficha, tono y móvil quedan actualizados.' });
     } catch (e: any) {
       toast({ kind: 'error', title: 'No se pudo guardar', body: e?.message });
     } finally {
@@ -541,9 +549,9 @@ export function TenantCard({
                   },
                   {
                     id: `${t.id}-tone`,
-                    title: 'Tono de la IA',
+                    title: 'Tu negocio ante la IA',
                     icon: <Bot size={15} />,
-                    meta: `Actual: ${tone}`,
+                    meta: bizType ? `${tone} · ${bizType}` : `Actual: ${tone}`,
                     content: (
                       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                         <div>
@@ -559,6 +567,86 @@ export function TenantCard({
                             <option value="formal">Formal — distinguido y serio</option>
                           </select>
                           <p className="hint">Se aplica a todos los borradores desde el siguiente.</p>
+                          <label className="label mt-3" htmlFor={`${t.id}-biztype`}>
+                            ¿A qué se dedica tu negocio?
+                          </label>
+                          <input
+                            id={`${t.id}-biztype`}
+                            className="input"
+                            list={`${t.id}-biztype-list`}
+                            placeholder="Bar con terraza, clínica dental, taller mecánico…"
+                            value={bizType}
+                            onChange={(e) => setBizType(e.target.value)}
+                            maxLength={80}
+                            disabled={preview}
+                          />
+                          <datalist id={`${t.id}-biztype-list`}>
+                            {[
+                              'Bar',
+                              'Bar con terraza',
+                              'Restaurante',
+                              'Cafetería',
+                              'Pizzería a domicilio',
+                              'Peluquería',
+                              'Salón de belleza',
+                              'Clínica dental',
+                              'Fisioterapia',
+                              'Hotel',
+                              'Taller mecánico',
+                              'Tienda online',
+                              'Tienda física',
+                              'Gimnasio',
+                            ].map((x) => (
+                              <option key={x} value={x} />
+                            ))}
+                          </datalist>
+                          <p className="hint">
+                            Con esto, la IA responde «como un bar» o «como una clínica»: usa las
+                            palabras de tu sector y conoce tu forma de trabajar.
+                          </p>
+                          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                            <div>
+                              <label className="label" htmlFor={`${t.id}-cemail`}>Email de contacto</label>
+                              <input
+                                id={`${t.id}-cemail`}
+                                type="email"
+                                className="input"
+                                placeholder="hola@tunegocio.es"
+                                value={cEmail}
+                                onChange={(e) => setCEmail(e.target.value)}
+                                maxLength={160}
+                                disabled={preview}
+                              />
+                            </div>
+                            <div>
+                              <label className="label" htmlFor={`${t.id}-cphone`}>Teléfono</label>
+                              <input
+                                id={`${t.id}-cphone`}
+                                className="input"
+                                placeholder="600 123 456"
+                                value={cPhone}
+                                onChange={(e) => setCPhone(e.target.value)}
+                                maxLength={24}
+                                disabled={preview}
+                              />
+                            </div>
+                            <div>
+                              <label className="label" htmlFor={`${t.id}-cweb`}>Web o redes</label>
+                              <input
+                                id={`${t.id}-cweb`}
+                                className="input"
+                                placeholder="tunegocio.es"
+                                value={cWeb}
+                                onChange={(e) => setCWeb(e.target.value)}
+                                maxLength={200}
+                                disabled={preview}
+                              />
+                            </div>
+                          </div>
+                          <p className="hint">
+                            Si una respuesta necesita invitar a contactar, la IA usará SOLO estos
+                            datos tuyos; nunca mencionará a ReviewFlow ni a terceros.
+                          </p>
                         </div>
                         <div className="flex items-end">
                           <button onClick={saveSettings} disabled={saving} className="btn-primary btn-sm h-[42px]">

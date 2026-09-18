@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireOwner } from '@/lib/authz';
-import { checkQuota, demoQuotaCheck, toSnapshot, type QuotaCheck } from '@/lib/usage';
+import { checkQuota, demoQuotaCheck, publicAiUsage, toSnapshot, type QuotaCheck } from '@/lib/usage';
 import { ADDON_CATALOG } from '@/lib/plans';
 
 const Query = z.object({ tenantId: z.string().uuid() });
@@ -27,8 +27,8 @@ function payload(check: QuotaCheck) {
       syncsPerMonth: limits.syncsPerMonth,
       locations: limits.locations,
     },
-    // --- Consumo real de IA (tokens medidos + coste estimado) ---
-    aiUsage: check.aiUsage,
+    // --- Consumo real de IA (tokens medidos; el coste interno nunca se expone) ---
+    aiUsage: publicAiUsage(check.aiUsage),
     used: snapshot.used,
     limit: snapshot.limit,
     remaining: snapshot.totalRemaining,

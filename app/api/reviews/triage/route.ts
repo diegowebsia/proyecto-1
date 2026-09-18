@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { inspectComplaintForTenant } from '@/lib/ai';
+import { aiProfileFromSettings, inspectComplaintForTenant } from '@/lib/ai';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { systemLog } from '@/lib/logger';
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
 
   const { data: review } = await admin
     .from('reviews')
-    .select('id, tenant_id, author_name, rating, text, tenants(name)')
+    .select('id, tenant_id, author_name, rating, text, tenants(name), settings')
     .eq('id', input.reviewId)
     .single();
   if (!review) return NextResponse.json({ error: 'Reseña no encontrada.' }, { status: 404 });
@@ -64,6 +64,7 @@ export async function POST(req: Request) {
     .single();
   if (!member) return NextResponse.json({ error: 'Sin permiso en esta empresa.' }, { status: 403 });
 
+  const profile = aiProfileFromSettings((review.tenants as any)?.settings);
   const result = await inspectComplaintForTenant(
     { admin, tenantId: String(review.tenant_id) },
     {
@@ -71,6 +72,7 @@ export async function POST(req: Request) {
       authorName: input.authorName ?? review.author_name ?? authorName,
       rating: input.rating ?? review.rating ?? rating,
       reviewText: input.reviewText ?? review.text ?? reviewText,
+      businessType: profile.businessType,
     },
   );
 

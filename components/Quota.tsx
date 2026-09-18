@@ -36,15 +36,13 @@ export type StorageView = {
   purged?: { reviews: number; audit: number; ai: number; logs: number };
 };
 
-/** Consumo real de tokens de IA del ciclo y coste estimado (USD). */
+/** Consumo real de tokens de IA del ciclo (vista pública: sin coste interno). */
 export type AiUsageView = {
   tokensUsed: number;
   tokensLimit: number;
   tokensRemaining: number;
   pct: number;
-  costUsd: number;
   requests: number;
-  model: string;
 };
 
 /**
@@ -197,28 +195,24 @@ export function QuotaMeter({
 }
 
 /**
- * Presupuesto de IA: tokens del ciclo, coste estimado y modelo en uso.
+ * Uso de la IA del ciclo: medidores legibles para el cliente,
+ * sin exponer nunca el coste interno del modelo contratado.
  * El límite de tokens es el freno de coste real: aunque queden créditos de IA,
  * al agotar el presupuesto las llamadas se bloquean hasta el siguiente ciclo.
  */
 export function AiBudget({ ai, className }: { ai: AiUsageView; className?: string }) {
   const tone = quotaTone(ai.pct);
-  const eur = (ai.costUsd * 0.92).toFixed(2); // USD → EUR aproximado para lectura humana
 
   return (
     <div className={cn('space-y-3', className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="flex items-center gap-1.5 text-sm font-semibold text-white">
           <Bot size={14} className="text-brand-300" />
-          Presupuesto de IA
+          Uso de la IA
         </p>
         <p className="flex items-center gap-1.5 text-xs text-ink-400">
-          <span className={cn('font-bold tabular-nums', TONE_TEXT[tone])}>
-            {ai.tokensUsed.toLocaleString('es-ES')}
-          </span>
-          <span className="text-ink-500">
-            / {ai.tokensLimit.toLocaleString('es-ES')} tokens del ciclo
-          </span>
+          <span className={cn('font-bold tabular-nums', TONE_TEXT[tone])}>{Math.round(ai.pct)} %</span>
+          <span className="text-ink-500">de tu bolsa mensual del ciclo</span>
         </p>
       </div>
 
@@ -231,34 +225,28 @@ export function AiBudget({ ai, className }: { ai: AiUsageView; className?: strin
         />
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2">
         <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
-          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Borradores de IA</p>
+          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Borradores escritos</p>
           <p className="mt-1 text-sm font-bold tabular-nums text-white">
             {ai.requests.toLocaleString('es-ES')}
             <span className="text-xs font-medium text-ink-500"> este ciclo</span>
           </p>
         </div>
-        <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
-          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Tokens restantes</p>
-          <p className="mt-1 text-sm font-bold tabular-nums text-white">
-            {ai.tokensRemaining.toLocaleString('es-ES')}
-          </p>
-        </div>
-        <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
-          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Coste estimado</p>
-          <p className="mt-1 text-sm font-bold tabular-nums text-white">
-            ≈ {eur} €
-            <span className="ml-1 text-2xs font-medium text-ink-500">/{ai.model}</span>
+        <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] px-3 py-2.5">
+          <p className="text-2xs font-semibold uppercase tracking-wider text-ink-400">Tu plan</p>
+          <p className="mt-1 text-sm font-bold text-white">
+            IA incluida ✓
+            <span className="ml-1 text-2xs font-medium text-ink-500">sin cargos por uso extra</span>
           </p>
         </div>
       </div>
 
       <p className="flex items-start gap-1.5 text-xs text-ink-500">
         <ShieldCheck size={13} className="mt-0.5 shrink-0 text-emerald-400" />
-        Medimos cada llamada (tokens de entrada y salida) para que nunca pagues más de lo previsto:
-        si el presupuesto se agota, la IA se pausa hasta el {new Date().getMonth() === 11 ? 'día 1' : 'día 1'} del mes
-        siguiente y puedes ampliarla con una recarga.
+        Controlamos el consumo por ti: si la bolsa se agota antes de fin de mes, la IA se pausa
+        hasta el {'1'} de mes siguiente y, si quieres seguir usándola, puedes ampliarla con una
+        recarga puntual.
       </p>
     </div>
   );

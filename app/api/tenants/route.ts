@@ -6,7 +6,19 @@ import { hasAccess } from '@/lib/plans';
 import { planOf } from '@/lib/plans';
 import { systemLog } from '@/lib/logger';
 
-const Body = z.object({ name: z.string().min(2).max(80) });
+const Body = z.object({
+  name: z.string().min(2).max(80),
+  /** Ajustes iniciales recogidos en el asistente de alta (sector, tono, contacto). */
+  settings: z
+    .object({
+      business_type: z.string().trim().max(80).optional(),
+      tone: z.enum(['profesional', 'cercano', 'formal']).optional(),
+      contact_email: z.string().email().max(160).optional(),
+      contact_phone: z.string().max(24).optional(),
+      website: z.string().max(200).optional(),
+    })
+    .optional(),
+});
 
 function slugify(s: string) {
   return s
@@ -26,7 +38,12 @@ function slugify(s: string) {
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Nombre inválido (2-80 caracteres).' }, { status: 400 });
+    const first = parsed.error.issues[0];
+    const friendly =
+      first && String(first.path?.[0]) === 'name'
+        ? 'Nombre inválido: escribe entre 2 y 80 caracteres.'
+        : 'Algo no cuadra en el formulario (revisa el email o el teléfono).';
+    return NextResponse.json({ error: friendly }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -82,6 +99,7 @@ export async function POST(req: Request) {
       slug,
       owner_email: user.email,
       owner_id: user.id,
+      settings: parsed.data.settings ?? {},
       // Hereda el plan activo del usuario; el nuevo negocio nace operativo.
       plan: active[0].plan as string,
       subscription_status: active[0].subscription_status as string,

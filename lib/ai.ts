@@ -8,9 +8,63 @@ export type RespondInput = {
   reviewText: string;
   language?: string;
   tone?: 'profesional' | 'cercano' | 'formal';
+  /** Sector del negocio (bar, clínica, taller…) — personaliza vocabulario y contexto. */
+  businessType?: string;
+  /** Datos de contacto PROPIOS del negocio: si la respuesta menciona un canal, usa estos. */
+  contact?: { email?: string; phone?: string; website?: string };
   /** Mensaje PRIVADO conciliador (filtro de malas experiencias), no respuesta pública. */
   privateMessage?: boolean;
 };
+
+/** Frases de contexto que convierten un borrador genérico en «la voz de este negocio». */
+function personaRules(input: Pick<RespondInput, 'businessType' | 'contact'>): string {
+  const rules: string[] = [];
+  if (input.businessType?.trim()) {
+    rules.push(
+      `El negocio es un/una ${input.businessType.trim().toLowerCase()}: escribe con el vocabulario y ` +
+        `las costumbres naturales de ese sector (un bar habla de la terraza, las tapas y las reservas; ` +
+        `una peluquería, de sus estilistas y sus citas…), sin tópicos ofensivos y sin inventar ` +
+        `servicios que la reseña no mencione.`,
+    );
+  }
+  const c = input.contact;
+  const contactBits = [
+    c?.phone && `teléfono ${c.phone}`,
+    c?.email && `email ${c.email}`,
+    c?.website && `web/redes ${c.website}`,
+  ].filter(Boolean) as string[];
+  if (contactBits.length > 0) {
+    rules.push(
+      `Si ofreces un canal de contacto, usa SOLO los datos del negocio: ${contactBits.join(', ')}. ` +
+        `NUNCA menciones a ReviewFlow, a «la plataforma», a terceros ni canales distintos de estos.`,
+    );
+  } else {
+    rules.push(
+      'NUNCA menciones a ReviewFlow, a «la plataforma», a terceros ni ningún contacto que no sea ' +
+        'el del propio negocio.',
+    );
+  }
+  return ' ' + rules.join(' ');
+}
+
+/** Perfil de negocio leído de `tenants.settings` (sector + contacto propio). */
+export type TenantAiProfile = {
+  businessType?: string;
+  contact?: { email?: string; phone?: string; website?: string };
+};
+
+/** Traduce los ajustes guardados por el cliente al contexto que consume la IA. */
+export function aiProfileFromSettings(settings: Record<string, unknown> | null | undefined): TenantAiProfile {
+  const g = (k: string): string | undefined => {
+    const v = settings?.[k];
+    return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+  };
+  const contact = { email: g('contact_email'), phone: g('contact_phone'), website: g('website') };
+  return {
+    businessType: g('business_type'),
+    contact: [contact.email, contact.phone, contact.website].some(Boolean) ? contact : undefined,
+  };
+}
 
 /** Contabilidad de tokens/coste que devuelve cada generación. */
 export type AiUsage = {
@@ -56,9 +110,10 @@ export async function generateReviewReply(input: RespondInput): Promise<{
   const tone = input.tone ?? 'profesional';
   const lang = input.language ?? 'español';
 
+  const persona = personaRules(input);
   const system = input.privateMessage
-    ? `Eres el responsable de atención al cliente de "${input.businessName}". Redactas un MENSAJE PRIVADO (no público) en ${lang} con tono ${tone} para reconducir una mala experiencia de ${input.authorName} (${input.rating}/5). Breve (máx. 80 palabras), empático, pide disculpas, propone una solución concreta y un canal de contacto directo. Sin comillas envolventes.`
-    : `Eres el community manager de "${input.businessName}". Respondes reseñas de clientes en ${lang} con tono ${tone}. Respuestas breves (máx. 80 palabras), sin comillas envolventes, firmadas con el nombre del negocio. Si la reseña es negativa (<=3 estrellas), empatiza, pide disculpas y ofrece una solución/contacto sin sonar robótico.`;
+    ? `Eres el responsable de atención al cliente de "${input.businessName}".${persona} Redactas un MENSAJE PRIVADO (no público) en ${lang} con tono ${tone} para reconducir una mala experiencia de ${input.authorName} (${input.rating}/5). Breve (máx. 80 palabras), empático, pide disculpas, propone una solución concreta y un canal de contacto directo. Sin comillas envolventes.`
+    : `Eres el community manager de "${input.businessName}".${persona} Respondes reseñas de clientes en ${lang} con tono ${tone}. Respuestas breves (máx. 80 palabras), sin comillas envolventes, firmadas con el nombre del negocio. Si la reseña es negativa (<=3 estrellas), empatiza, pide disculpas y ofrece una solución/contacto sin sonar robótico.`;
 
   const outcome = await chatOnce({
     system,
@@ -80,11 +135,19 @@ export async function generateReviewReply(input: RespondInput): Promise<{
   };
 }
 
+function contactLine(input: RespondInput): string {
+  const c = input.contact;
+  const bits = [c?.phone && `llámanos al ${c.phone}`, c?.email && `escríbenos a ${c.email}`, c?.website && `o visita ${c.website}`].filter(
+    Boolean,
+  ) as string[];
+  return bits.length > 0 ? ` Puedes ${bits.slice(0, 2).join(' o ')}.` : '';
+}
+
 function localPrivateReply(input: RespondInput): string {
   return (
     `Hola ${input.authorName}, soy ${input.businessName}. Hemos leído tu valoración (${input.rating}/5) ` +
     `y sentimos mucho lo ocurrido. Queremos solucionarlo contigo en privado: ¿nos indicas un teléfono ` +
-    `o email donde contactarte hoy mismo? Gracias por darnos la oportunidad de compensarte.`
+    `o email donde contactarte hoy mismo?${contactLine(input)} Gracias por darnos la oportunidad de compensarte.`
   );
 }
 
@@ -113,8 +176,8 @@ function localTemplateReply(input: RespondInput, tone: string): string {
   }
   return (
     `${greeting} sentimos mucho que tu experiencia no fuera la esperada. ` +
-    `Tu caso es prioritario para nosotros: escríbenos a nuestro email o llámanos ` +
-    `y lo resolvemos personalmente. Gracias por darnos la oportunidad de mejorar. — ${businessName}`
+    `Tu caso es prioritario para nosotros: lo resolvemos personalmente enseguida.` +
+    `${contactLine(input)} Gracias por darnos la oportunidad de mejorar. — ${businessName}`
   );
 }
 
@@ -252,12 +315,19 @@ export async function inspectComplaint(input: {
   rating: number;
   reviewText: string;
   language?: string;
+  /** Sector del negocio: prioriza la queja con su casuística real. */
+  businessType?: string;
 }): Promise<ComplaintInspection> {
   const lang = input.language ?? 'español';
+  const sector = input.businessType?.trim()
+    ? ` El negocio es un/una ${input.businessType.trim().toLowerCase()}: valora el riesgo y la ` +
+      `acción según lo habitual en ese sector (una cerveza templada en un bar no es lo mismo que ` +
+      `un retraso en una clínica).`
+    : '';
 
   const outcome = await chatOnce({
     system:
-      `Eres el responsable de calidad de "${input.businessName}". Analizas quejas de clientes ` +
+      `Eres el responsable de calidad de "${input.businessName}".${sector} Analizas quejas de clientes ` +
       `en ${lang} y priorizas su resolución. ${COMPLAINT_SCHEMA_HINT}`,
     user: `Queja de ${input.authorName} (${input.rating}/5):\n${input.reviewText}`,
     purpose: 'triage.inspect',
@@ -280,7 +350,14 @@ export async function inspectComplaint(input: {
 /** Inspección de queja CON control de cuota (1 evento `ai`). */
 export async function inspectComplaintForTenant(
   ctx: AiContext,
-  input: { businessName: string; authorName: string; rating: number; reviewText: string; language?: string },
+  input: {
+    businessName: string;
+    authorName: string;
+    rating: number;
+    reviewText: string;
+    language?: string;
+    businessType?: string;
+  },
 ): Promise<AiResult<{ inspection: ComplaintInspection }>> {
   // Misma puerta de IA que las respuestas, con la feature del triaje privado.
   const gate = await enforceAi(ctx.admin, ctx.tenantId, {

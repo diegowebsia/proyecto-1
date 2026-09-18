@@ -11,7 +11,21 @@ export type TenantInfo = {
   suspended: boolean;
   trial_ends_at: string | null;
   access: boolean;
-  settings: { tone?: string; place_id?: string; whatsapp_to?: string; place_rating?: number | null; tripadvisor_url?: string; trustpilot_url?: string; funnel_enabled?: boolean };
+  settings: {
+    tone?: string;
+    place_id?: string;
+    whatsapp_to?: string;
+    place_rating?: number | null;
+    tripadvisor_url?: string;
+    trustpilot_url?: string;
+    funnel_enabled?: boolean;
+    /** Sector del negocio: da contexto a la IA («qué eres» para responder). */
+    business_type?: string;
+    /** Contacto propio del negocio: la IA solo ofrece estos canales. */
+    contact_email?: string;
+    contact_phone?: string;
+    website?: string;
+  };
   /** Estado de cada conexión — SIN credenciales: los secretos viven solo en el servidor (v3.14.0). */
   integrations: Array<{ provider: string; status: 'connected' | 'pending_setup' | 'error' | 'disconnected'; last_sync_at: string | null }>;
 };
@@ -35,9 +49,7 @@ export type AiUsageView = {
   tokensLimit: number;
   tokensRemaining: number;
   pct: number;
-  costUsd: number;
   requests: number;
-  model: string;
 };
 
 export type StorageView = {
@@ -62,7 +74,7 @@ export type UsageResponse = {
   cycle: string;
   /** Cuotas mensuales por métrica (peticiones, opiniones, IA, sincronizaciones). */
   metrics: Record<UsageMetric, MetricQuotaView>;
-  /** Consumo real de tokens de IA del ciclo (medido por llamada) + coste estimado. */
+  /** Consumo real de tokens de IA del ciclo (medido por llamada; sin coste interno). */
   aiUsage: AiUsageView;
   limits: {
     requestsPerMonth: number;

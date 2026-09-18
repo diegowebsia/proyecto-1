@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
-import { generateReplyForTenant, inspectComplaintForTenant } from '@/lib/ai';
+import { aiProfileFromSettings, generateReplyForTenant, inspectComplaintForTenant } from '@/lib/ai';
 import { OPENAI_MODEL, openAiRuntime, openAiStatus } from '@/lib/openai';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -182,6 +182,14 @@ export async function POST(req: Request) {
     return NextResponse.json(gate.body, { status: gate.status, headers: gate.headers });
   }
 
+  // ---- Perfil del negocio (sector + contacto propio) para la IA ------
+  const { data: tenantRow } = await admin
+    .from('tenants')
+    .select('settings')
+    .eq('id', input.tenantId)
+    .single();
+  const profile = aiProfileFromSettings((tenantRow?.settings as Record<string, unknown>) ?? undefined);
+
   // ---- Ejecución --------------------------------------------------
   if (input.task === 'triage') {
     const result = await inspectComplaintForTenant(
@@ -191,6 +199,7 @@ export async function POST(req: Request) {
         authorName: input.authorName,
         rating: input.rating,
         reviewText: input.reviewText,
+        businessType: profile.businessType,
       },
     );
     if (!result.ok) return NextResponse.json(result.body, { status: result.status, headers: result.headers });
@@ -203,12 +212,7 @@ export async function POST(req: Request) {
       ok: true,
       task: 'triage',
       inspection: result.inspection,
-      usage: {
-        tokens: result.inspection.usage.totalTokens,
-        costUsd: result.inspection.usage.costUsd,
-        model: result.inspection.usage.model,
-        provider: result.inspection.provider,
-      },
+      usage: { tokens: result.inspection.usage.totalTokens, provider: result.inspection.provider },
       quota: result.quota,
     });
   }
@@ -221,6 +225,8 @@ export async function POST(req: Request) {
       rating: input.rating,
       reviewText: input.reviewText,
       tone: input.tone,
+      businessType: profile.businessType,
+      contact: profile.contact,
       privateMessage: input.private === true,
     },
     { feature: 'aiReplies' },
@@ -242,8 +248,6 @@ export async function POST(req: Request) {
     provider: result.provider,
     usage: {
       tokens: result.usage.totalTokens,
-      costUsd: result.usage.costUsd,
-      model: result.usage.model,
       latencyMs: result.usage.latencyMs,
       attempts: result.usage.attempts,
       fallback: result.provider !== 'openai',

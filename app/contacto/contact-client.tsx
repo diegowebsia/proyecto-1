@@ -86,7 +86,7 @@ export function ContactClient() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-ink-950 text-ink-50">
+    <div className="relative min-h-screen overflow-clip bg-ink-950 text-ink-50">
       <Aurora />
       <SiteHeader
         variant="simple"

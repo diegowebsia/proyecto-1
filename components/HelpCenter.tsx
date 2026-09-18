@@ -126,6 +126,8 @@ export function HelpCenter({ open, onClose, topic }: HelpCenterProps) {
           </p>
           <StepList
             items={[
+              'Dinos a qué te dedicas (bar, peluquería, taller…) en «Tu negocio ante la IA»: las respuestas sonarán a tu sector, no a un robot genérico.',
+              'Si una respuesta necesita invitarte a contactar, la IA usa SOLO tu email, tu teléfono y tu web: nunca menciona a ReviewFlow ni a terceros.',
               'Cada respuesta usa parte de la «bolsa mensual» incluida en tu plan: nunca hay cargos sorpresa.',
               'Si la bolsa se agota antes de fin de mes, la IA se pausa y sigues respondiendo con plantillas preparadas.',
               'Si algún día el servicio externo de IA se cae, la plataforma lo detecta y usa igualmente una plantilla profesional.',

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { PLANS, TRIAL_DAYS, formatEur, planOf, type PlanId } from '@/lib/plans';
 import { Aurora, CountUp, EASE } from '@/components/Motion';
+import { useHeaderGlass } from '@/components/useHeaderGlass';
 import { Spinner, TableSkeleton } from '@/components/Skeleton';
 import { useToast } from '@/components/Toast';
 import { cn } from '@/lib/utils';
@@ -204,9 +205,11 @@ export function AdminClient({ email, demo, tenants, stats, logs, integrations, p
   }
 
   const busyRow = (key: string) => busy === key;
+  // Parallax glassmorphism compartido para la barra de pestañas (v3.15.0).
+  const { scrolled: navScrolled, glassOpacity: navGlass } = useHeaderGlass();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-ink-950 text-ink-50">
+    <div className="relative min-h-screen overflow-clip bg-ink-950 text-ink-50">
       <Aurora />
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* ---------- Cabecera ---------- */}
@@ -305,8 +308,18 @@ export function AdminClient({ email, demo, tenants, stats, logs, integrations, p
           ))}
         </div>
 
-        {/* ---------- Tabs ---------- */}
-        <div className="mt-7 flex flex-wrap items-center gap-1 border-b border-white/[0.07]">
+        {/* ---------- Tabs (glass + parallax como el resto de barras, v3.15.0) ---------- */}
+        <div className="mt-7 sticky top-0 z-20 -mx-4 px-4">
+          <div className="relative">
+            <motion.div
+              aria-hidden
+              style={{ opacity: navGlass }}
+              className={cn(
+                'absolute inset-x-[-1rem] inset-y-0 -z-10 border-b bg-ink-950/80 backdrop-blur-md transition-all duration-300',
+                navScrolled ? 'border-white/10 backdrop-blur-lg saturate-150' : 'border-white/[0.04] saturate-125',
+              )}
+            />
+          <div className="no-scrollbar flex items-center gap-1 overflow-x-auto">
           {TABS.map((t) => {
             const active = tab === t.id;
             return (
@@ -329,6 +342,8 @@ export function AdminClient({ email, demo, tenants, stats, logs, integrations, p
               </button>
             );
           })}
+        </div>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">

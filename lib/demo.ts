@@ -142,7 +142,6 @@ export function demoStats() {
 import type { TenantInfo, UsageResponse } from '@/components/dashboard/types';
 import {
   ADDON_CATALOG,
-  DEFAULT_AI_MODEL,
   PLAN_CATALOG,
   formatEur,
   planOf,
@@ -166,6 +165,10 @@ export function demoTenantFor(plan: DemoPlanId): TenantInfo {
     access: true,
     settings: {
       tone: plan === 'business' ? 'cercano' : 'profesional',
+      business_type: plan === 'business' ? 'restaurante con terraza' : 'clínica dental',
+      contact_email: plan === 'business' ? 'hola@labrasa.demo' : 'citas@sonrisa.demo',
+      contact_phone: plan === 'business' ? '+34 910 000 111' : '+34 910 000 222',
+      website: plan === 'business' ? 'labrasa.demo' : 'sonrisa.demo',
       place_id: 'ChIJL2OmBZ2bUg0R2HfHtIz4Gk (demo)',
       place_rating: plan === 'business' ? 4.6 : 4.8,
       whatsapp_to: '34600000000',
@@ -274,9 +277,7 @@ export function demoUsageFor(plan: DemoPlanId): UsageResponse {
       tokensLimit: p.limits.aiTokensPerMonth,
       tokensRemaining: Math.max(0, p.limits.aiTokensPerMonth - tokensUsed),
       pct: Math.round((tokensUsed / p.limits.aiTokensPerMonth) * 100),
-      costUsd: Number(((tokensUsed / 1_000_000) * 0.15 + (tokensUsed / 1_000_000) * 0.6).toFixed(3)),
       requests: metrics.ai.used,
-      model: DEFAULT_AI_MODEL,
     },
     limits: {
       requestsPerMonth: p.limits.requestsPerMonth,

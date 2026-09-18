@@ -47,7 +47,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es" className="dark" data-scroll-behavior="smooth">
       <body className="min-h-screen bg-ink-950 text-ink-100 antialiased">
         <ToastProvider>
           <ConsentProvider>
