@@ -45,7 +45,7 @@ export function StoreConnect({
 }: {
   tenant: TenantInfo;
   demo: boolean;
-  /** Entorno de pruebas: la conexión se simula en local (sin APIs). */
+  /** Vista demo: la conexión se simula en local (sin APIs). */
   preview?: boolean;
 }) {
   const toast = useToast();
@@ -79,7 +79,7 @@ export function StoreConnect({
       setRequested(true);
       toast({
         kind: 'success',
-        title: 'Conexión solicitada (vista de pruebas)',
+        title: 'Conexión solicitada (demo)',
         body: 'En el panel real, nuestro equipo la completa en unas horas sin que muevas un dedo.',
       });
       return;

@@ -68,7 +68,7 @@ export function TriageCard({
         `Hola ${r.author.split(' ')[0]}: sentimos mucho lo que cuentas. Nos gustaría llamarte hoy para entender qué pasó y ofrecerte una solución a la altura. ¿Te va bien a las 18:00? — Dirección de ${r.tenant}`,
       );
       setLoadingMsg(false);
-      toast({ kind: 'success', title: 'Mensaje privado listo (vista de pruebas)', body: 'En el panel real la IA lo redacta con tu tono y no se publica: es solo para ti.' });
+      toast({ kind: 'success', title: 'Mensaje privado listo (demo)', body: 'En el panel real la IA lo redacta con tu tono y no se publica: es solo para ti.' });
       return;
     }
     try {
@@ -119,7 +119,7 @@ export function TriageCard({
         provider: 'local-heuristic',
       });
       setLoadingScan(false);
-      toast({ kind: 'success', title: 'Queja inspeccionada (vista de pruebas)', body: 'Severidad media · Trato al cliente' });
+      toast({ kind: 'success', title: 'Queja inspeccionada (demo)', body: 'Severidad media · Trato al cliente' });
       return;
     }
     try {
@@ -153,7 +153,7 @@ export function TriageCard({
     if (demo) {
       await new Promise((a) => setTimeout(a, 500));
       setSavingNote(false);
-      toast({ kind: 'success', title: 'Nota guardada (vista de pruebas)', body: 'Solo tu equipo puede verla.' });
+      toast({ kind: 'success', title: 'Nota guardada (demo)', body: 'Solo tu equipo puede verla.' });
       return;
     }
     try {

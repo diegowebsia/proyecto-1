@@ -1,7 +1,7 @@
 # Changelog — ReviewFlow AI
 
 
-## v3.14.0 (2026-09-18) — Panel sin fricción técnica, ayuda contextual y entorno de pruebas
+## v3.14.0 (2026-09-18) — Panel sin fricción técnica, ayuda contextual y demo pública
 
 - **Ayuda contextual en todos los módulos**: cada panel (`ReviewCard`, `BillingPanel`,
   `FunnelPanel`, `UsagePanel`, `StoreConnect`, `TenantCard`) incluye un icono «?» accesible
@@ -21,11 +21,11 @@
   con progreso (3 pasos, se oculta al completar), KPIs de conversión del embudo
   («conversión a pública»), minibarras de consumo en las tarjetas de facturación, microinteracciones
   (spring al publicar, hover states) y estados visuales de conexión (en vivo, pendiente de activación).
-- **Entorno de pruebas comercial** (`/demo/login` + `/demo/pro` + `/demo/business`): vista simulada
-  del panel exacta que verá un cliente de cada plan. Protegida por `DEMO_ACCESS_CODE` (solo en el
-  servidor, nunca en el repositorio), cookie httpOnly firmada con caducidad de 8 h, rate limit por
-  IP y 404 absoluto si el operador no lo activa. Fuera de producción solo se mantiene `?demo=1`
-  como atajo de desarrollo.
+- **Demo pública del panel por plan** (`/demo/pro` y `/demo/business`): el visitante entra de
+  inmediato al DashboardClient exacto de cada plan con datos simulados (banner ámbar «Panel demo»,
+  toggle Pro ⇄ Business, «Volver al inicio» y acciones auto-contenidas en el navegador; `noindex`).
+  Sin registro, sin cookies y sin variables nuevas de entorno; `?demo=1` sigue siendo un atajo
+  exclusivo de desarrollo.
 - **Limpieza**: se eliminan los `.md` de auditorías cerradas de la raíz, `proyect.zip` duplicado,
   la variable muerta `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (no hay campos de tarjeta en el navegador),
   los alias legacy `STRIPE_PRICE_RESENAS/STARTER/COMPLETO` y `STRIPE_PRICE_ADDON_EVENTS`, y la

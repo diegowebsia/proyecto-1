@@ -27,7 +27,7 @@ type UsagePanelProps = {
   demo: boolean;
   onBuyAddon?: (pack: string) => void;
   compact?: boolean;
-  /** Entorno de pruebas: muestra un snapshot simulado sin tocar la API. */
+  /** Vista demo: muestra un snapshot simulado sin tocar la API. */
   previewUsage?: UsageResponse | null;
 };
 

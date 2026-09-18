@@ -10,10 +10,9 @@ responderlas con IA, pedirlas por email/WhatsApp y cobrar por uso medible.**
 - ✅ **Ayuda contextual en cada módulo**: icono «?» accesible (clic/hover/teclado) en `ReviewCard`,
   `BillingPanel`, `FunnelPanel`, `UsagePanel`, `StoreConnect` y `TenantCard`, con explicación en
   lenguaje no técnico y enlace al Centro de ayuda abierto en la sección concreta.
-- ✅ **Entorno de pruebas comercial** (`/demo`): el prospecto ve el panel EXACTO de los planes Pro y
-  Business con datos simulados. Activado solo con `DEMO_ACCESS_CODE` en el servidor: código nunca
-  almacenado en el repositorio, cookie httpOnly firmada (HMAC) con caducidad de 8 h, rate limit por
-  IP, `noindex` y 404 total si el operador no lo habilita.
+- ✅ **Demo del panel sin registro**: `/demo/pro` y `/demo/business` abren directamente el panel
+  exacto de cada plan con datos simulados — banner ámbar «Panel demo», toggle Pro ⇄ Business y
+  acciones simuladas en el navegador (no se llama a APIs ni se guarda nada; rutas `noindex`).
 - ✅ **Cabecera pública con glassmorphism + parallax**: `sticky top-0 z-50`, `backdrop-blur-md`,
   opacidad y altura que se ajustan progresivamente al hacer scroll, sombra suave y micro-parallax
   en el héroe (patrón de las mejores landing SaaS 2026).
@@ -101,7 +100,7 @@ POST /api/ai
 |---|---|---|
 | **[GUIA_GRATIS.md](./GUIA_GRATIS.md)** 🆓 | Explicación comercial de los 2 planes + montar el proyecto gratis (Vercel + Supabase + Stripe **test** + Brevo) | **0 €** |
 | **[GUIA_DESPLIEGUE.md](./GUIA_DESPLIEGUE.md)** 🚀 | Desplegar desde cero (dominio, DNS, SSL, Docker) | Según host |
-| **[GUIA_ADMIN.md](./GUIA_ADMIN.md)** 🛡️ | Manual del dueño: planes, cuotas, **topes de BD por plan**, purga, cobros, **conexiones asistidas desde /admin** y **entorno de pruebas `/demo`** | — |
+| **[GUIA_ADMIN.md](./GUIA_ADMIN.md)** 🛡️ | Manual del dueño: planes, cuotas, **topes de BD por plan**, purga, cobros, **conexiones asistidas desde /admin** y **demo `/demo`** | — |
 | **[docs/GUIA_PASOS_MANUALES.md](./docs/GUIA_PASOS_MANUALES.md)** 🧑‍💻 | **Lista exacta de credenciales**, formato del `.env`, productos de Stripe, Supabase, OpenAI, Meta WhatsApp, Google y troubleshooting | — |
 | **[GUIA_COMERCIALIZACION.md](./GUIA_COMERCIALIZACION.md)** 💰 | **Todo lo que TÚ debes aportar para vender al público**: empresa, dominio, Stripe live, SMTP, marca, integraciones en producción, legal RGPD/consumo, seguridad, soporte y checklist go-live | — |
 | **[GUIA_AUTOMATIZACION.md](./GUIA_AUTOMATIZACION.md)** ⚙️ | Cron + QStash + plantillas HSM + opt-in RGPD + Flujo Neutral: qué configurar y dónde | — |
@@ -117,7 +116,6 @@ POST /api/ai
 # 1) Clona y prepara el entorno
 git clone https://github.com/diegowebsia/proyecto-1.git && cd proyecto-1
 cp .env.example .env                       # pega TUS claves (tabla: docs/GUIA_PASOS_MANUALES.md)
-#   opcional para preventas: DEMO_ACCESS_CODE=$(openssl rand -hex 16)  → /demo/login
 
 # 2) Crea la base de datos: Supabase → SQL Editor → pega supabase/schema.sql → Run
 #    (proyecto existente: migraciones pendientes hasta migration_3_14_0.sql)
@@ -146,36 +144,26 @@ npm run verify
 > Variables clave: `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
 > `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`,
 > `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_BUSINESS`,
-> `SMTP_*`, `OPENAI_API_KEY` (opcional), `SUPERADMIN_EMAILS` y, para preventas,
-> `DEMO_ACCESS_CODE` (opcional). La publishable key de Stripe ya no se usa: todo el cobro
+> `SMTP_*`, `OPENAI_API_KEY` (opcional), `SUPERADMIN_EMAILS`.
+> La publishable key de Stripe ya no se usa: todo el cobro
 > ocurre en el servidor y no hay campos de tarjeta en el navegador.
 > Detalle de cada una: [`.env.example`](./.env.example) y
 > [docs/GUIA_PASOS_MANUALES.md](./docs/GUIA_PASOS_MANUALES.md).
 
 **Docker / VPS:** `docker compose up -d --build` (usa el `Dockerfile` incluido).
 
-### 🧪 Entorno de pruebas para vender (acceso a ambos planes)
+### 🎭 Enseñar el producto en 1 enlace
 
-¿Quieres enseñar a un prospecto **lo que verá un cliente de Pro o Business** sin crearle una
-cuenta ni exponer datos reales?
+Sin cuentas, sin códigos y sin pedir nada al prospecto:
 
-```bash
-# 1) En el servidor (Vercel → Settings → Environment Variables, o tu .env en VPS):
-DEMO_ACCESS_CODE=$(openssl rand -hex 16)   # solo vive aquí; NUNCA en el repo ni en la web pública
-# 2) Genera y envía el enlace de acceso:
-#      https://tu-dominio.com/demo/login   (el visitante pega el código tú a tú)
-# 3) El visitante entra y alterna Plan Pro ⇄ Plan Business con datos 100 % simulados.
-```
+- `https://tu-dominio.com/demo/pro` → panel exacto del **Plan Pro** (datos simulados)
+- `https://tu-dominio.com/demo/business` → panel exacto del **Plan Business** (datos simulados)
 
-**Cómo está blindado:** el `404` absoluto si la variable no existe · comparación del código con
-HMAC y tiempo constante · rate limit por IP (8 intentos/15 min, fail-closed en producción) ·
-cookie `httpOnly`+`secure`+`sameSite=lax` firmada que **caduca a las 8 h** (sin cuentas, sin
-sesión real) · rutas `noindex` y sin enlaces públicos · el panel demo **no llama a APIs ni toca
-la BD** (las acciones se simulan en local). ¿Fin de la demo? Borra la variable del servidor y
-todo `/demo` deja de existir al instante. En desarrollo local `?demo=1` sigue siendo un atajo
-aceptado solo fuera de producción.
+Ambas rutas renderizan el mismo `DashboardClient` que ve un cliente real, con toggle de plan y
+banner ámbar de honestidad. Las acciones (conectar, publicar, comprar recargas…) se simulan en
+el navegador: no llaman a ninguna API ni tocan la BD. Son rutas `noindex`, sin enlaces públicos:
+se comparten solo cuando tú quieras enseñar el producto.
 
----
 
 ## 💶 Planes y cuotas (fuente de verdad: `lib/plans.ts`)
 
@@ -258,7 +246,7 @@ Registro → /bienvenido (2 planes de pago)
 | `supabase/migration_3_12_0.sql` | Idempotencia observable de webhooks Stripe y soporte de reintentos seguros. |
 | `supabase/migration_3_13_0.sql` | Campañas atribuibles, analítica por origen y soporte QR. |
 | `supabase/migration_3_14_0.sql` | Estado `pending_setup` en `integrations` para las **conexiones asistidas** (el cliente no ve claves; se completan en `/admin`). |
-| `proxy.ts` | Añade trazabilidad, corta `/dashboard` sin acceso, `/admin` sin `SUPERADMIN_EMAILS` y las APIs `/api/ai|reviews|integrations` sin suscripción (**402**). La previsualización sin Supabase solo con cookie firmada de `/demo` (o `?demo=1` en desarrollo). |
+| `proxy.ts` | Añade trazabilidad, corta `/dashboard` sin acceso, `/admin` sin `SUPERADMIN_EMAILS` y las APIs `/api/ai|reviews|integrations` sin suscripción (**402**). `?demo=1` solo previsualiza en desarrollo. |
 
 ### Endpoints con control de cuota
 
@@ -282,7 +270,6 @@ Registro → /bienvenido (2 planes de pago)
 | `GET /api/reports/reputation` | Sesión + membresía | Informe de reputación de 30 días |
 | `GET /api/admin/db` | — | Diagnóstico de BD: pool, latencia, conexiones, tamaño por tabla (super-admin) |
 | `POST /api/admin/integrations/complete` | Super-admin + MFA | Activar/rechazar conexiones asistidas pendientes (credenciales cifradas + auditoría) |
-| `POST /api/demo/access` · `DELETE` | Rate limit por IP + código válido | Canjear/retirar la cookie del entorno de pruebas (`DEMO_ACCESS_CODE`) |
 | `GET /api/stripe/webhook` | — | Diagnóstico del webhook: modo, eventos, precios (super-admin) |
 
 ---
@@ -340,7 +327,7 @@ Registro → /bienvenido (2 planes de pago)
 ├── app/
 │   ├── page.tsx · sobre-nosotros/ · contacto/ · bienvenido/   # Web + onboarding
 │   ├── login/ · registro/ · dashboard/                        # Auth + panel privado
-│   ├── demo/                                                  # Entorno de pruebas (login + /demo/pro|business)
+│   ├── demo/                                                  # Demo del panel: /demo/pro · /demo/business
 │   ├── admin/                                                 # Panel interno (privado)
 │   ├── aviso-legal/ · privacidad/ · terminos/ · cookies/
 │   └── api/
@@ -358,7 +345,7 @@ Registro → /bienvenido (2 planes de pago)
 │                        TriageCard · ReviewCard · UsagePanel · Stars · types
 ├── lib/                 plans · usage · openai · db · ingest · stripe · ai · google ·
 │                        trustpilot · whatsapp · store · maps · mail · auth · env · logger ·
-│                        demo (datos + vistas previas por plan) · demo-mode (acceso /demo) · site
+│                        demo (datos + vistas previas por plan) · site
 ├── supabase/            schema.sql + migration_3_2_0 … migration_3_14_0.sql
 ├── scripts/             verify-launch.mjs (npm run verify)
 ├── docs/                GUIA_PASOS_MANUALES.md (manual de credenciales, fuera del cliente)
@@ -373,10 +360,6 @@ Registro → /bienvenido (2 planes de pago)
   ningún enlace ni mención en la UI pública**. Desde v3.14.0 el panel también es donde el
   dueño completa las credenciales de las conexiones asistidas (`/api/admin/integrations/complete`,
   exige MFA + auditoría); el cliente nunca introduce claves.
-- **Entorno de pruebas `/demo`**: desactivado salvo que el servidor defina `DEMO_ACCESS_CODE`
-  (el código jamás se commitea); comparación HMAC en tiempo constante, rate limit por IP,
-  cookie `httpOnly` + `sameSite=lax` + `secure` en producción, caducidad de 8 h, sin indexación
-  y sin datos reales: solo simulación.
 - **RLS**: cada empresa solo ve sus datos; credenciales OAuth, secretos de webhook y API keys solo
   vía `service_role` en servidor (nunca llegan al navegador — la `api_key` del tenant ya ni siquiera
   se selecciona en las consultas del panel).

@@ -41,7 +41,7 @@ export function BillingPanel({
   tenant?: TenantInfo;
   demo: boolean;
   addonResult?: 'success' | 'canceled' | null;
-  /** Entorno de pruebas (preventas): consumo simulado, sin tocar APIs. */
+  /** Vista demo: consumo simulado, sin tocar APIs. */
   previewUsage?: UsageResponse | null;
 }) {
   const toast = useToast();

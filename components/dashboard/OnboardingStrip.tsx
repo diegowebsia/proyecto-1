@@ -25,7 +25,7 @@ export function OnboardingStrip({
   tenant: TenantInfo;
   reviewedAny: boolean;
   onAction: (a: OnboardingAction) => void;
-  /** En el entorno de pruebas se marca como completada al pulsar (sin BD). */
+  /** En la vista demo se marca como completada al pulsar (sin BD). */
   preview?: boolean;
 }) {
   const [dismissed, setDismissed] = useState(false);

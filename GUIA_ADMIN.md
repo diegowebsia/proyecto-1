@@ -99,23 +99,12 @@ registra en `admin_audit_events`. Si no procede, **Rechazar** deja motivo visibl
 Rotación de claves: `POST /api/admin/integrations/complete` (misma ruta) o `credentials/rotate`
 para recifrar filas legacy. Requisito: sesión de super-admin con **MFA (AAL2)**.
 
-### 2.2 Entorno de pruebas comercial (`/demo`)
+### 2.2 Demo pública del panel (`/demo/pro` · `/demo/business`)
 
-Para enseñar el producto a un prospecto sin crearle cuenta:
-
-```bash
-DEMO_ACCESS_CODE=$(openssl rand -hex 16)   # solo en el servidor; nunca en Git
-```
-
-Con esa variable definida existen `/demo/login` (introduce el código) y las vistas
-`/demo/pro` y `/demo/business` (panel simulado idéntico al real, con banner violeta y toggle de
-planes). **Sin la variable, /demo responde 404.** Detalles: rate limit por IP (8 intentos/15 min),
-cookie httpOnly firmada con caducidad de 8 h, `noindex` y cero llamadas a APIs/BD desde la demo.
-Para «apagarlo» (fin de la demo, fugas sospechadas, etc.): borra la variable y redeploya; si
-quieres invalidar además las cookies ya emitidas, rota `APP_SIGNING_SECRET`.
-
-> El viejo atajo `?demo=1` de `/dashboard` y `/admin` **solo funciona en desarrollo**: en
-> producción desapareció (lo sustituye este entorno con código).
+Las dos rutas abren el panel exacto de cada plan con datos simulados (banner ámbar y
+toggle de planes); las acciones se simulan en el navegador y no tocan APIs ni BD. Van con
+`noindex` y no se enlazan desde la web pública: las compartes tú cuando quieras enseñar el
+producto. No requieren ninguna variable de entorno.
 
 ---
 

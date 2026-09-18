@@ -48,9 +48,9 @@ export function TenantCard({
   syncing: string | null;
   onSync: (p: 'google' | 'trustpilot' | 'tripadvisor' | 'places', id: string) => void;
   demo: boolean;
-  /** Entorno de pruebas: las acciones se simulan en local (sin tocar APIs). */
+  /** Vista demo: las acciones se simulan en local (sin tocar APIs). */
   preview?: boolean;
-  /** Snapshot simulado de consumo para la vista de pruebas. */
+  /** Snapshot simulado de consumo para la vista demo. */
   previewUsage?: import('@/components/dashboard/types').UsageResponse | null;
 }) {
   const toast = useToast();
@@ -73,7 +73,7 @@ export function TenantCard({
 
   async function saveSettings() {
     if (preview) {
-      toast({ kind: 'success', title: 'Ajustes guardados (vista de pruebas)', body: 'Tono, ficha de Google y móvil actualizados.' });
+      toast({ kind: 'success', title: 'Ajustes guardados (demo)', body: 'Tono, ficha de Google y móvil actualizados.' });
       return;
     }
     setSaving(true);
@@ -107,7 +107,7 @@ export function TenantCard({
       setTpRequested(true);
       toast({
         kind: 'success',
-        title: 'Trustpilot solicitado (vista de pruebas)',
+        title: 'Trustpilot solicitado (demo)',
         body: 'En el panel real lo activamos nosotros por ti en menos de 24 h laborables.',
       });
       return;
@@ -147,7 +147,7 @@ export function TenantCard({
       setTaRequested(true);
       toast({
         kind: 'success',
-        title: 'TripAdvisor solicitado (vista de pruebas)',
+        title: 'TripAdvisor solicitado (demo)',
         body: 'Nos encargamos de localizar tu ficha y activar la sincronización.',
       });
       return;
@@ -181,7 +181,7 @@ export function TenantCard({
       return;
     }
     if (preview) {
-      toast({ kind: 'success', title: 'Alerta enviada (vista de pruebas)', body: `Simulación: llegaría al ${waTo} en segundos.` });
+      toast({ kind: 'success', title: 'Alerta enviada (demo)', body: `Simulación: llegaría al ${waTo} en segundos.` });
       return;
     }
     setSaving(true);
@@ -305,7 +305,7 @@ export function TenantCard({
                           {!integ('google') ? (
                             preview ? (
                               <button
-                                onClick={() => toast({ kind: 'success', title: 'Google conectado (vista de pruebas)', body: 'En el panel real esto es el inicio de sesión de Google y nada más.' })}
+                                onClick={() => toast({ kind: 'success', title: 'Google conectado (demo)', body: 'En el panel real esto es el inicio de sesión de Google y nada más.' })}
                                 className="btn-light btn-sm"
                               >
                                 <Link2 size={13} /> Conectar con Google

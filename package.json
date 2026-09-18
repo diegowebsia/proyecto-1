@@ -1,7 +1,7 @@
 {
   "name": "reviewflow-ai",
   "version": "3.14.0",
-  "description": "ReviewFlow AI v3.14.0 — SaaS multi-tenant de gestión de reputación online con IA: panel Pro/Business con ayuda contextual, conexiones 100 % asistidas (cero claves para el cliente), header glass con parallax, entorno de pruebas comercial (/demo) y flujo neutral de valoración. Cron + cola QStash, plantillas WhatsApp HSM, opt-in RGPD, QR y atribución de campañas.",
+  "description": "ReviewFlow AI v3.14.0 — SaaS multi-tenant de gestión de reputación online con IA: panel Pro/Business con ayuda contextual, conexiones 100 % asistidas (cero claves para el cliente), header glass con parallax y flujo neutral de valoración. Cron + cola QStash, plantillas WhatsApp HSM, opt-in RGPD, QR y atribución de campañas.",
   "private": true,
   "license": "UNLICENSED",
   "engines": {

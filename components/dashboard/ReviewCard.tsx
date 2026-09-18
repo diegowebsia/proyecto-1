@@ -29,7 +29,7 @@ export function ReviewCard({
   draft?: string;
   published: boolean;
   tone: 'profesional' | 'cercano' | 'formal';
-  /** Entorno de pruebas / modo demo: redacta y publica una simulación local. */
+  /** Vista demo: redacta y publica una simulación local. */
   demo?: boolean;
   onDraftChange: (id: string, value: string) => void;
   onPublished: (id: string) => void;
@@ -61,13 +61,13 @@ export function ReviewCard({
     setGenerating(true);
     setShowDraft(true);
     if (demo) {
-      // Simulación local del borrador de IA (entorno de pruebas): sin cuotas ni APIs.
+      // Simulación local del borrador de IA (vista demo): sin cuotas ni APIs.
       await new Promise((a) => setTimeout(a, 1400));
       onDraftChange(r.id, PREVIEW_REPLIES[tone] ?? PREVIEW_REPLIES.profesional);
       setGenerating(false);
       toast({
         kind: 'success',
-        title: 'Borrador listo (vista de pruebas)',
+        title: 'Borrador listo (demo)',
         body: 'En el panel real usa tu IA incluida en el plan · revísalo antes de publicar',
       });
       return;
@@ -117,7 +117,7 @@ export function ReviewCard({
       setPublishing(false);
       onPublished(r.id);
       setPublishedJustNow(true);
-      toast({ kind: 'success', title: 'Respuesta publicada (vista de pruebas)', body: 'Así de simple es en el panel real: 1 clic y queda publicada.' });
+      toast({ kind: 'success', title: 'Respuesta publicada (demo)', body: 'Así de simple es en el panel real: 1 clic y queda publicada.' });
       return;
     }
     setPublishing(true);

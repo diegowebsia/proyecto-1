@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  ArrowLeft,
   Building2,
   CircleHelp,
   CreditCard,
@@ -55,7 +56,6 @@ export function DashboardClient({
   hasAnyTenant,
   tab: initialTab = 'bandeja',
   addonResult,
-  demoEnv = false,
   previewUsage = null,
   previewStats = null,
 }: {
@@ -67,11 +67,9 @@ export function DashboardClient({
   hasAnyTenant: boolean;
   tab?: TabId;
   addonResult?: 'success' | 'canceled' | null;
-  /** Entorno de pruebas comercial (/demo/…): sin acciones reales, con banner. */
-  demoEnv?: boolean;
-  /** Consumo simulado del ciclo para la vista de pruebas. */
+  /** Consumo simulado del ciclo para la demo (/demo/…). */
   previewUsage?: UsageResponse | null;
-  /** Estadísticas simuladas del embudo para la vista de pruebas. */
+  /** Estadísticas simuladas del embudo para la demo. */
   previewStats?: Record<string, unknown> | null;
 }) {
   const toast = useToast();
@@ -238,12 +236,11 @@ export function DashboardClient({
                 {planOf(primaryTenant.plan).tier}
               </span>
             )}
-            {!demoEnv && (
+            {!demo && (
               <a href="/api/stripe/portal" className="btn-secondary btn-sm">
                 <CreditCard size={14} /> Suscripción
               </a>
             )}
-            {demoEnv && <span className="badge-warn">vista de pruebas</span>}
             <button
               onClick={() => {
                 setHelpTopic(null);
@@ -254,20 +251,10 @@ export function DashboardClient({
             >
               <CircleHelp size={14} /> <span className="hidden sm:inline">Ayuda</span>
             </button>
-            {demoEnv ? (
-              <button
-                className="btn-quiet btn-sm"
-                onClick={async () => {
-                  try {
-                    await fetch('/api/demo/access', { method: 'DELETE' });
-                  } catch {
-                    /* la caducidad de la cookie limita el acceso igualmente */
-                  }
-                  window.location.href = '/';
-                }}
-              >
-                <LogOut size={14} /> Salir de la vista
-              </button>
+            {demo ? (
+              <a href="/" className="btn-quiet btn-sm">
+                <ArrowLeft size={14} /> Volver al inicio
+              </a>
             ) : (
               <form action="/api/auth/signout" method="post">
                 <button className="btn-quiet btn-sm">
@@ -311,33 +298,19 @@ export function DashboardClient({
       <main className="relative mx-auto max-w-6xl space-y-5 px-4 py-8">
         <div className="pointer-events-none absolute inset-x-0 -top-8 -z-10 h-64 bg-[radial-gradient(50%_60%_at_50%_0%,rgba(37,99,235,0.12),transparent_70%)]" aria-hidden />
 
-        {demoEnv ? (
-          <div className="card flex flex-wrap items-center justify-between gap-3 border-violet-400/30 bg-[linear-gradient(120deg,rgba(139,92,246,0.12),rgba(37,99,235,0.08))]">
-            <p className="flex items-center gap-2.5 text-sm text-ink-100">
-              <Sparkles size={16} className="shrink-0 text-violet-300" />
-              <span>
-                <strong className="font-bold text-white">Entorno de pruebas.</strong> Esto es
-                exactamente lo que verá un cliente suscrito: datos simulados, sin cobros y sin acceso
-                a información real de terceros.
+        {demo && (
+          <div className="card flex flex-wrap items-center justify-between gap-3 border-amber-400/25 bg-amber-400/[0.07]">
+            <p className="flex items-start gap-3 text-sm">
+              <TriangleAlert size={17} className="mt-0.5 shrink-0 text-amber-300" />
+              <span className="text-ink-300">
+                <span className="font-bold text-white">Estás viendo la demo del panel.</span> Datos
+                simulados: no se guarda ni se cobra nada.
               </span>
             </p>
             <Link href="/registro" className="btn-primary btn-sm shrink-0">
               <CreditCard size={13} /> Lo quiero en mi negocio
             </Link>
           </div>
-        ) : (
-          demo && (
-            <div className="card flex items-start gap-3 border-amber-400/25 bg-amber-400/[0.07]">
-              <TriangleAlert size={17} className="mt-0.5 shrink-0 text-amber-300" />
-              <div className="text-sm">
-                <p className="font-bold text-white">Modo demo</p>
-                <p className="mt-0.5 text-ink-300">
-                  Estás viendo datos de ejemplo del servidor de desarrollo. Para el panel real,
-                  configura Supabase + Stripe con la guía de despliegue.
-                </p>
-              </div>
-            </div>
-          )
         )}
 
         {/* Sin suscripción y sin empresa → activar prueba */}
@@ -415,7 +388,7 @@ export function DashboardClient({
                 <OnboardingPresence
                   tenant={primaryTenant}
                   reviewedAny={reviews.some((x) => x.replied) || publishedIds.size > 0}
-                  preview={demoEnv}
+                  preview={demo}
                   onAction={(a) => {
                     if (a === 'connections') setTab('empresa');
                     else if (a === 'funnel') setTab('embudo');
@@ -629,14 +602,14 @@ export function DashboardClient({
                   key={t.id}
                   tenant={t}
                   syncing={syncing}
-                  onSync={demoEnv ? () => undefined : sync}
+                  onSync={demo ? () => undefined : sync}
                   demo={demo}
-                  preview={demoEnv}
+                  preview={demo}
                   previewUsage={previewUsage}
                 />
               ))}
 
-              {demo && tenants.length > 0 && !demoEnv && (
+              {demo && tenants.length > 0 && (
                 <p className="text-xs text-ink-500">
                   Modo demo: las conexiones se activarán al configurar el servidor. Resumen paso a
                   paso en el botón{' '}

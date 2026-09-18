@@ -157,7 +157,6 @@ Dos cosas en un solo documento:
 |---|---|
 | `/admin` dice `forbidden` | Tu email no está en `SUPERADMIN_EMAILS` → corrige → Redeploy |
 | Banner “modo demo” | Falta variable Supabase o `schema.sql` sin ejecutar |
-| `/demo` responde 404 | El entorno de pruebas requiere `DEMO_ACCESS_CODE` en el servidor |
 | Tras pagar, no se crea la empresa | Revisa el webhook (paso 7) y los Logs del panel interno |
 | La app “muere” al cabo de días | Supabase Free pausa el proyecto → **Resume project** |
 | "La IA responde genérico" | Sin `OPENAI_API_KEY` o sin crédito: la app usa el fallback local (mira `ai_interactions.ok`) |

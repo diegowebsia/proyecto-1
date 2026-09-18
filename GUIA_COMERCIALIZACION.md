@@ -419,7 +419,6 @@ Cada cosa que tienes que aportar, con su destino exacto. Úsala como índice.
 | Plantillas WhatsApp aprobadas | Meta → WhatsApp Manager | Panel de Meta + `WHATSAPP_TEMPLATE_*` |
 | Webhook entrante + opt-in checkout | Meta → Configuration + tu tienda | `WHATSAPP_VERIFY_TOKEN` + `whatsapp_optin` en el pedido |
 | TripAdvisor (SerpAPI/Outscraper) | serpapi.com / outscraper.com | `TRIPADVISOR_PROVIDER` + API key (+ Location ID por empresa, completado en `/admin → Conexiones`) |
-| Código del entorno de pruebas | El que tú inventes (`openssl rand -hex 16`) | `DEMO_ACCESS_CODE` → habilita `/demo/login` + `/demo/pro|business` para preventas; borrarlo apaga el entorno |
 | Cron + cola | Tú (secreto) + console.upstash.com | `CRON_SECRET` + `QSTASH_*` (opcionales; sin ellos, manual/en línea) |
 | Verificación empresa Meta | Meta Business Settings | Panel de Meta (documentación fiscal) |
 | Revisión legal + RAT + DPAs | Tu abogado/asesoría | Archiva contratos; ajusta `/terminos` si cambia algo |

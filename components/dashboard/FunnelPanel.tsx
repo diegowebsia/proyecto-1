@@ -30,7 +30,7 @@ export function FunnelPanel({
 }: {
   tenant: TenantInfo;
   demo: boolean;
-  /** Entorno de pruebas: estadísticas simuladas del embudo. */
+  /** Vista demo: estadísticas simuladas del embudo. */
   previewStats?: any;
 }) {
   const toast = useToast();
@@ -91,7 +91,7 @@ export function FunnelPanel({
       setSaving(true);
       setTimeout(() => {
         setSaving(false);
-        toast({ kind: 'success', title: 'Embudo actualizado (vista de pruebas)', body: 'En el panel real tus cambios se guardan al instante.' });
+        toast({ kind: 'success', title: 'Embudo actualizado (demo)', body: 'En el panel real tus cambios se guardan al instante.' });
       }, 450);
       return;
     }

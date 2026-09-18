@@ -2,7 +2,6 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { isTrialExpired, TRIAL_DAYS } from '@/lib/plans';
-import { demoRequestAllowed } from '@/lib/demo-mode';
 
 /**
  * ReviewFlow AI v3.13.0 — Middleware de seguridad y negocio (modelo 100% de pago).
@@ -54,30 +53,17 @@ export async function proxy(req: NextRequest) {
       pathname === '/api/integrations' ||
       pathname.startsWith('/api/integrations/'));
 
-  // `/demo/*` (entorno de pruebas de preventa): la página valida la cookie, pero este
-  // corte en el borde devuelve un 307 limpio ANTES de renderizar cualquier shell.
-  const isDemoPreviewRoute = pathname.startsWith('/demo/') && pathname !== '/demo/login';
-  if (isDemoPreviewRoute) {
-    if (await demoRequestAllowed(req.headers.get('cookie'))) return res;
-    const loginUrl = req.nextUrl.clone();
-    loginUrl.pathname = '/demo/login';
-    loginUrl.search = '';
-    return NextResponse.redirect(loginUrl);
-  }
-
   if (!isAdminRoute && !isDashboardRoute && !isProtectedApi) return res;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnon) {
-    // Sin Supabase no hay datos reales que proteger. v3.14.0: la previsualización
-    // SOLO es accesible con la cookie firmada del entorno de pruebas (/demo/login).
-    // En desarrollo se admite además `?demo=1` por comodidad local — nunca en producción.
-    const demoCookie = await demoRequestAllowed(req.headers.get('cookie'));
+    // Sin Supabase no hay datos reales que proteger: en desarrollo se admite la
+    // previsualización del panel con `?demo=1` (nunca en producción); si no, a /login.
     const devQuery =
       process.env.NODE_ENV !== 'production' && req.nextUrl.searchParams.get('demo') === '1';
-    if (demoCookie || devQuery) return res;
+    if (devQuery) return res;
     if (isProtectedApi) {
       return NextResponse.json(
         { error: 'Supabase no configurado en el servidor. La API está en modo demo.', code: 'demo' },
@@ -288,5 +274,5 @@ async function checkSubscriptionAccess(
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/dashboard/:path*', '/api/:path*', '/demo/:path*'],
+  matcher: ['/admin/:path*', '/dashboard/:path*', '/api/:path*'],
 };

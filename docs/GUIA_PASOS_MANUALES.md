@@ -52,11 +52,7 @@ cp .env.example .env
 | 5 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave pública `anon` (respeta RLS) | Supabase → Project Settings → **API** → `anon` `public` | ✅ |
 | 6 | `SUPABASE_SERVICE_ROLE_KEY` | Clave **Service Role** (solo servidor; salta RLS) | Supabase → Project Settings → **API** → `service_role` `secret` | ✅ |
 | 7 | `STRIPE_SECRET_KEY` | Clave secreta de Stripe (`sk_test_…` / `sk_live_…`) | Stripe → **Developers → API keys** → Secret key | ✅ |
-| 8 | `DEMO_ACCESS_CODE` | **Nuevo v3.14.0:** activa `/demo` (entorno de pruebas comercial Pro/Business) | `openssl rand -hex 16` — solo en el servidor; sin ella, `/demo` es un 404 | ⭕ |
-
-> La `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` **ya no se usa** (v3.14.0): todo el cobro pasa por el
-> servidor y no hay campos de tarjeta en el navegador. Si tu `.env` antiguo la tiene, puedes
-> borrarla sin más.
+| 8 | — | Clave publicable de Stripe **retirada** (v3.14.0): el cobro ocurre en el servidor y no hay campos de tarjeta en el navegador; si tu `.env` antiguo la tiene, bórrala | — | — |
 | 9 | `STRIPE_WEBHOOK_SECRET` | Secreto del endpoint de webhook (`whsec_…`) | Stripe → **Developers → Webhooks** → tu endpoint → Signing secret | ✅ |
 | 10 | `STRIPE_PRICE_PRO` | Price ID del plan **Pro** 29 €/mes | Stripe → **Product catalog** → producto → precio mensual → `price_…` | ✅ |
 | 11 | `STRIPE_PRICE_BUSINESS` | Price ID del plan **Business** 79 €/mes | Idem | ✅ |

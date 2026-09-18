@@ -135,7 +135,7 @@ export function demoStats() {
 }
 
 /* ------------------------------------------------------------------ */
-/* v3.14.0 — Entorno de pruebas (preventas): datos simulados por plan  */
+/* v3.14.0 — Vista demo del panel: datos simulados por plan  */
 /*                     y snapshot de uso para los paneles del panel.   */
 /* ------------------------------------------------------------------ */
 
@@ -152,7 +152,7 @@ import {
 
 export type DemoPlanId = 'pro' | 'business';
 
-/** Empresa de ejemplo para el entorno de pruebas, con su plan real de catálogo. */
+/** Empresa de ejemplo para la vista demo, con su plan real de catálogo. */
 export function demoTenantFor(plan: DemoPlanId): TenantInfo {
   const now = new Date();
   return {
